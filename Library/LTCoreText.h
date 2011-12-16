@@ -11,6 +11,7 @@
 #import <CoreText/CoreText.h>
 
 #import "LTTextLayouter.h"
+#import "LTTextAttachment.h" // Protocol
 
 
 #define LTTextLogInfo NSLog
