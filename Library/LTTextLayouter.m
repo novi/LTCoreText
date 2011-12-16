@@ -7,8 +7,6 @@
 //
 
 #import "LTTextLayouter.h"
-#import "DTTextAttachment.h"
-#import "NSAttributedString+HTML.h"
 
 CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
@@ -54,12 +52,14 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 {
 	
 	NSMutableDictionary* attrOptions = [NSMutableDictionary dictionaryWithCapacity:5];
-	[attrOptions setObject:@"Palatino" forKey:DTDefaultFontFamily];
+	/*[attrOptions setObject:@"Palatino" forKey:DTDefaultFontFamily];
 	[attrOptions setObject:[NSNumber numberWithFloat:14.0/12.0] forKey:NSTextSizeMultiplierDocumentOption];
 	[attrOptions setObject:[NSNumber numberWithFloat:1.2] forKey:DTDefaultLineHeightMultiplier];
 	[attrOptions setObject:[NSValue valueWithCGSize:CGSizeMake(1, 1)] forKey:DTMaxImageSize];
 	//[attrOptions setObject:[NSNumber numberWithBool:self.hyphenSwitch.on] forKey:DTUseHyphenation];
-	NSDictionary* attr = nil;
+	*/
+    NSDictionary* attr = nil;
+     
 	NSAttributedString* mainString = [[NSAttributedString alloc] initWithHTML:htmlData options:attrOptions documentAttributes:&attr];
 	
 	// Create Title Attibuted String
@@ -477,7 +477,7 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 			CTRunRef run = CFArrayGetValueAtIndex(runs, ri);
 			CFDictionaryRef attr = CTRunGetAttributes(run);
 			if (CFDictionaryGetValue(attr, @"DTTextAttachment")) {
-				DTTextAttachment* attachment = [(id)attr objectForKey:@"DTTextAttachment"];
+				/*DTTextAttachment* attachment = [(id)attr objectForKey:@"DTTextAttachment"];
 				
 				// Fix Image URL
 				if (attachment.contentType == DTTextAttachmentTypeImage) {
@@ -502,6 +502,7 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 									  ,[NSValue valueWithCGPoint:CGPointMake(p.x, (height - p.y) + _contentInset.bottom)]
 									  ,@"position_view", nil];
 				[dst addObject:dict];
+                 */
 				//				[array addObject:attachment];
 			}
 		}
@@ -536,10 +537,10 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 {
 	NSUInteger count = 0;
 	for (NSDictionary* dict in array) {
-		DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
+		/*DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
 		if (attachment.contentType == DTTextAttachmentTypeImage) {
 			count++;
-		}
+		}*/
 	}
 	
 	return count;
@@ -565,10 +566,10 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	
 	NSMutableArray* dst = [NSMutableArray array];
 	for (NSDictionary* dict in array) {
-		DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
+		/*DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
 		if (attachment.contentType == DTTextAttachmentTypeImage) {
 			[dst addObject:dict];
-		}
+		}*/
 	}
 	return dst;
 }

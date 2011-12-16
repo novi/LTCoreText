@@ -7,12 +7,10 @@
 //
 
 #import "LTTextPageView.h"
-#import "DTTextAttachment.h"
 #import "LTImageDownloader.h"
 #import "LTTextImageView.h"
 #import "LTTextImageScrollView.h"
 
-#import "LTDummyObject.h"
 
 @interface LTTextPageView()
 {
@@ -85,7 +83,7 @@
 	LTTextRelease(_zoomedImageView);
 	
 	
-	[[LTImageDownloader sharedInstance] downloadImageWithURL:imageView.attachment.contentURL
+	/*[[LTImageDownloader sharedInstance] downloadImageWithURL:imageView.attachment.contentURL
 												 imageBounds:CGSizeZero
 													 options:nil
 												  completion:
@@ -102,7 +100,7 @@
 			 superview.scrollEnabled = NO;
 			 
 		 }
-	 }];
+	 }];*/
 }
 
 -(void)lt_zoomedImageViewClose:(LTTextImageScrollView*)zoomedImageView
@@ -120,7 +118,8 @@
 
 - (void)showAttachmentsIfNeeded
 {
-	if (_isNeedShowAttachments) {
+}
+/*	if (_isNeedShowAttachments) {
 		_isNeedShowAttachments = NO;
 	} else {
 		return;
@@ -202,7 +201,7 @@
 		
 	}
 }
-
+*/
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.

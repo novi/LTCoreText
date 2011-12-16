@@ -8,7 +8,7 @@
 
 #import "LTImageDownloader.h"
 #import "CGUtils.h"
-#import "ASIHTTPRequest.h"
+
 
 @interface LTImageDownloader()
 {
@@ -109,37 +109,29 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 			return;
 		}
 		
-		//NSURLRequest* req = [NSURLRequest requestWithURL:url];
-		ASIHTTPRequest* req = [ASIHTTPRequest requestWithURL:url];
-		req.delegate = self;
-		req.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:cacheKey, @"cacheKey",
-						[NSValue valueWithCGSize:bounds], @"bounds", 
-						comp, @"completion",
-						options, @"options", nil];
-		[_downloadQueue addOperation:req];
+        
+        NSURLRequest* req = [NSURLRequest requestWithURL:url];
+        [NSURLConnection sendAsynchronousRequest:req
+                                           queue:_downloadQueue
+                               completionHandler:^(NSURLResponse * res, NSData * data, NSError * error) {
+                                   if (data.length && !error) {
+                                       dispatch_async(_queue, ^(void) {
+                                           [_imageCache setObject:data forKey:cacheKey];
+                                           
+                                           UIImage* srcImage = [UIImage imageWithData:data];
+                                           UIImage* image = [self _resizeImage:srcImage bounds:bounds options:options];
+                                           dispatch_async(dispatch_get_main_queue(), ^(void) {
+                                               comp(image, nil);
+                                           });
+                                       });
+                                   } else {
+                                       // Request failed
+                                       dispatch_async(dispatch_get_main_queue(), ^{
+                                           comp(nil, error); 
+                                       });
+                                   }
+                               }];
 	});
-}
-
-
-- (void)requestFinished:(ASIHTTPRequest *)request
-{
-	dispatch_async(_queue, ^(void) {
-		NSData *responseData = [request responseData];
-		[_imageCache setObject:responseData forKey:[request.userInfo objectForKey:@"cacheKey"]];
-		
-		UIImage* srcImage = [UIImage imageWithData:responseData];
-		UIImage* image = [self _resizeImage:srcImage bounds:[[request.userInfo objectForKey:@"bounds"] CGSizeValue] options:[request.userInfo objectForKey:@"options"]];
-		dispatch_async(dispatch_get_main_queue(), ^(void) {
-			LTImageDownloadCallback comp = [request.userInfo objectForKey:@"completion"];
-			comp(image, nil);
-		});
-	});
-}
-
-- (void)requestFailed:(ASIHTTPRequest *)request
-{
-	LTImageDownloadCallback comp = [request.userInfo objectForKey:@"completion"];
-	comp(nil, [request error]);
 }
 
 

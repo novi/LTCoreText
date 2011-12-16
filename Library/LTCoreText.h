@@ -11,7 +11,7 @@
 #import <CoreText/CoreText.h>
 
 #import "LTTextLayouter.h"
-#import "LTDummyObject.h"
+
 
 #define LTTextLogInfo NSLog
 #define LTTextLogError NSLog
