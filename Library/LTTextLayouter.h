@@ -17,8 +17,8 @@
 @property (nonatomic, retain, readonly) NSAttributedString* attributedString;
 @property (nonatomic, readonly) CGSize frameSize;
 @property (nonatomic, readonly) NSUInteger pageCount;
-@property (nonatomic) NSUInteger columnCount;
 
+@property (nonatomic) NSUInteger columnCount;
 @property (nonatomic, retain) UIColor* backgroundColor;
 @property (nonatomic) UIEdgeInsets contentInset;
 @property (nonatomic) CGFloat columnSpace;
@@ -26,8 +26,9 @@
 @property (nonatomic) BOOL useHyphenation; // attributedString must be hyphenated with (soft-hyphen, u0x00AD)
 
 
+- (NSUInteger)columnCountAtPageIndex:(NSUInteger)index;
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
-- (NSUInteger)pageIndexAtStringIndex:(NSUInteger)index;
+- (NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col;
 
 - (NSArray*)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
 

@@ -89,6 +89,11 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 #pragma mark -
 
+-(NSUInteger)columnCountAtPageIndex:(NSUInteger)index
+{
+    return ((NSArray*)[_frames objectAtIndex:index]).count;
+}
+
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
 	CTFrameRef frame = (CTFrameRef)[[_frames objectAtIndex:index] objectAtIndex:col];
@@ -97,26 +102,35 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	return NSMakeRange(range.location, range.length);
 }
 
--(NSUInteger)pageIndexAtStringIndex:(NSUInteger)index
+-(NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col
 {
 	if (_needFrameLayout) {
 		[self _layoutFrame];
 	}
 	
 	if (index+1 > [_attributedString length]) {
-		return 0; // out of index bounds
+		return NSNotFound; // out of index bounds
 	}
 	
-	/*NSUInteger count = 0;
-	 for (id frame in _frames) {
-	 count += CTFrameGetVisibleStringRange((CTFrameRef)frame).length;
-	 if (count > index) {
-	 //return [self _pageIndexAtFrameIndex:[_frames indexOfObjectIdenticalTo:frame]];
-	 }
-	 }*/
+	NSUInteger count = 0;    
+    for (NSUInteger pi = 0; pi < _frames.count; pi++) {
+        NSArray* cols = [_frames objectAtIndex:pi];
+        for (NSUInteger ci = 0; ci < cols.count; ci++) {
+            CTFrameRef frame = (CTFrameRef)[cols objectAtIndex:ci];
+            count += CTFrameGetVisibleStringRange((CTFrameRef)frame).length;
+            if (count > index) {
+                if (col) {
+                    *col = ci;
+                }
+                return pi;
+            }
+        }
+    }
 	
 	return 0;
 }
+
+#pragma mark - Layout
 
 - (CGSize)_columnSize
 {

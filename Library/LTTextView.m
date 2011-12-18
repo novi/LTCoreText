@@ -86,7 +86,7 @@
 	}
 	
 	LTTextLayouter* layouter = [_layouters objectAtIndex:layouterIndex];
-	NSUInteger pageIndex = [layouter pageIndexAtStringIndex:strIndex];
+	NSUInteger pageIndex = [layouter pageIndexOfStringIndex:strIndex columnIndex:NULL];
 	
 	_currentScrollIndex = [self _scrollIndexOfLayouter:layouter atPageIndex:pageIndex];
 	CGPoint p = CGPointMake(self.bounds.size.width*_currentScrollIndex, 0);
