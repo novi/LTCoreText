@@ -9,6 +9,8 @@
 #import "MainViewController.h"
 #import "LTTextView.h"
 #import "NSAttributedString+HTML.h"
+#import "LTTextImageView.h"
+#import "DTTextAttachment.h"
 
 @interface MainViewController()
 {
@@ -34,13 +36,15 @@
         NSData* htmlData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"README" ofType:@"html"]];
         _attrString = [[NSMutableAttributedString alloc] init];
         
+        NSMutableDictionary* options = [NSMutableDictionary dictionaryWithCapacity:1];
+        [options setObject:[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] forKey:NSBaseURLDocumentOption];
         
         for (int i = 0; i < 10; i++) {
             if (i != 0) {
                 [_attrString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n\n\n\n\n"]];
             }
             [_attrString appendAttributedString:[[NSAttributedString alloc] initWithHTML:htmlData
-                                                                                 options:nil
+                                                                                 options:options
                                                                       documentAttributes:nil]];
         }
         
@@ -157,9 +161,18 @@
 
 -(UIView *)textview:(LTTextView *)textView viewForRunDictionary:(NSDictionary *)dict
 {
+    DTTextAttachment* attachment = [dict objectForKey:@"DTTextAttachment"];
     NSLog(@"run dict: %@", dict);
-    UIView* view = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    /*UIView* view = [[UIView alloc] initWithFrame:CGRectZero];
     view.backgroundColor = [UIColor colorWithHue:0.05*(rand()%20) saturation:0.05*(rand()%20) brightness:0.5 alpha:1.0];
     return view;
+     */
+    LTTextImageView* imageView = [[LTTextImageView alloc] init];
+    imageView.imageURL = attachment.contentURL;
+    imageView.displaySize = attachment.displaySize;
+    [imageView startDownload];
+    
+    return imageView;
 }
 @end

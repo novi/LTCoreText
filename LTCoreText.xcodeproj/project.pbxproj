@@ -384,15 +384,15 @@
 		520EDEB1149DD19700DE253D /* Attachment */ = {
 			isa = PBXGroup;
 			children = (
+				520EDEB2149DD1A000DE253D /* ImageView */,
 				520EDE49149B41D900DE253D /* LTTextAttachment.h */,
 				520EDEA8149B549A00DE253D /* LTTextAttachmentRunDelegate.h */,
 				520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */,
-				520EDEB2149DD1A000DE253D /* Image */,
 			);
 			name = Attachment;
 			sourceTree = "<group>";
 		};
-		520EDEB2149DD1A000DE253D /* Image */ = {
+		520EDEB2149DD1A000DE253D /* ImageView */ = {
 			isa = PBXGroup;
 			children = (
 				520EDE24149AFE4800DE253D /* LTImageDownloader.h */,
@@ -402,7 +402,7 @@
 				520EDE28149AFE4800DE253D /* LTTextImageView.h */,
 				520EDE29149AFE4800DE253D /* LTTextImageView.m */,
 			);
-			name = Image;
+			name = ImageView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -12,7 +12,10 @@
 @class DTTextAttachment;
 @interface LTTextImageView : UIImageView
 
-@property (nonatomic, retain) DTTextAttachment* attachment;
+@property (nonatomic, retain) NSURL* imageURL;
+@property (nonatomic) CGSize displaySize;
+
+- (void)startDownload;
 
 // Tap Action : lt_imageSelected:
 

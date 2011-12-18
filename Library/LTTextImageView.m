@@ -7,18 +7,20 @@
 //
 
 #import "LTTextImageView.h"
+#import "LTImageDownloader.h"
 
 const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 
 @implementation LTTextImageView
 
-@synthesize attachment;
+@synthesize imageURL, displaySize;
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
 		self.userInteractionEnabled = YES;
+        self.contentMode = UIViewContentModeScaleAspectFit;
 		
 		UIView* overlayView = [[UIView alloc] initWithFrame:frame];
 		overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
@@ -69,9 +71,44 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 - (void)dealloc
 {
 	LTTextMethodDebugLog();
-    self.attachment = nil;
+    self.imageURL = nil;
     [super dealloc];
 }
+
+-(void)startDownload
+{
+    NSDictionary* options = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [UIColor lightGrayColor], LTImageDownloaderOptionBorderColor,
+                             [NSNumber numberWithFloat:1.0f], LTImageDownloaderOptionBorderWidth, nil];
+    
+    //LTDummyObject* dummyObject = [[[LTDummyObject alloc] init] autorelease];
+    
+    self.alpha = 0.0;
+    self.image = nil;
+    
+    NSURL* currentURL = [[self.imageURL copy] autorelease];
+    
+    [[LTImageDownloader sharedInstance] downloadImageWithURL:currentURL
+                                                 imageBounds:self.displaySize
+                                                     options:options
+                                                  completion:
+     ^(UIImage *image, NSError *error) {
+         NSLog(@"image downloaded: req:%@, cur:%@", currentURL, self.imageURL);
+         if ([self.imageURL isEqual:currentURL]) {
+                 if (image) {
+                     self.image = image;
+                 [UIView animateWithDuration:0.5
+                                  animations:^{ 
+                                      self.alpha = 1.0;
+                                  }];
+                 } else {
+                     // error
+                 }
+             }
+         
+     }];
+}
+
 
 /*
 // Only override drawRect: if you perform custom drawing.

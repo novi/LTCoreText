@@ -17,12 +17,17 @@
 	dispatch_queue_t _queue;
 }
 
+@property (nonatomic, retain) NSOperationQueue* downloadQueue;
+
 @end
 
 @implementation LTImageDownloader
 
+@synthesize downloadQueue = _downloadQueue;
+
 NSString* const LTImageDownloaderOptionBorderColor = @"border_color";
 NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
+
 
 +(id)sharedInstance
 {
@@ -34,12 +39,26 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 	
 }
 
++(void)setOperationQueue:(NSOperationQueue *)queue
+{
+    if (queue) {
+        LTImageDownloader* li = [self sharedInstance];
+        li.downloadQueue = queue;
+    }
+}
+
++(NSOperationQueue *)currentOperationQueue
+{
+    LTImageDownloader* li = [self sharedInstance];
+    return li.downloadQueue;
+}
+
 - (id)init
 {
     self = [super init];
     if (self) {
 		_queue = dispatch_queue_create("lt.coretext.imagedownloader", 0);
-		_downloadQueue = [[NSOperationQueue alloc] init];
+		self.downloadQueue = [[[NSOperationQueue alloc] init] autorelease];
 		_downloadQueue.maxConcurrentOperationCount = 3;
 		_imageCache = [[NSCache alloc] init];
     }
