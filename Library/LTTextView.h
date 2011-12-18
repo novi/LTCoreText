@@ -7,10 +7,24 @@
 //
 
 #import "LTCoreText.h"
+#import <CoreText/CoreText.h>
+
+
+@class LTTextView;
+@protocol LTTextViewDelegate <NSObject>
+
+@required
+- (UIView*)textview:(LTTextView*)textView viewForRunDictionary:(NSDictionary*)dict;
+
+@optional
+- (void)textview:(LTTextView*)textView willDrawPageIndex:(NSUInteger)pageIndex inContext:(CGContextRef)context;
+- (void)textview:(LTTextView*)textView didDrawPageIndex:(NSUInteger)pageIndex inContext:(CGContextRef)context;
+
+@end
 
 @interface LTTextView : UIScrollView<UIScrollViewDelegate>
 
-
+@property (nonatomic, assign) id<LTTextViewDelegate> textViewDelegate;
 @property (nonatomic, retain, readonly) NSArray* layouters;
 
 - (void)insertLayouter:(LTTextLayouter*)layouter atIndex:(NSUInteger)index;

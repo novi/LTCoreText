@@ -10,7 +10,7 @@
 #import "LTImageDownloader.h"
 #import "LTTextImageView.h"
 #import "LTTextImageScrollView.h"
-
+#import "LTTextView.h"
 
 @interface LTTextPageView()
 {
@@ -29,6 +29,11 @@
 
 @synthesize index = _index;
 @synthesize layouter = _layouter;
+
+- (LTTextView*)_textView
+{
+    return (id)self.superview;
+}
 
 - (id)initWithFrame:(CGRect)frame layouter:(LTTextLayouter*)layouter pageIndex:(NSUInteger)index
 {
@@ -118,12 +123,31 @@
 
 - (void)showAttachmentsIfNeeded
 {
-}
-/*	if (_isNeedShowAttachments) {
+    if (_isNeedShowAttachments) {
 		_isNeedShowAttachments = NO;
 	} else {
 		return;
 	}
+    
+    LTTextView* textView = [self _textView];
+    
+    NSUInteger colCount = [_layouter columnCountAtPageIndex:_index];
+    for (NSUInteger i = 0; i < colCount; i++) {
+        CGRect colFrame = [_layouter _columnFrameWithColumn:i];
+        NSArray* attrs = [_layouter attachmentsAtPageIndex:_index column:i];
+        for (NSDictionary* dict in attrs) {
+            CGRect frame = [[dict objectForKey:@"frame"] CGRectValue];
+            frame = CGRectOffset(frame, colFrame.origin.x, 0);
+            UIView* view = [textView.textViewDelegate textview:textView viewForRunDictionary:[dict objectForKey:@"attributes"] ];
+            view.autoresizesSubviews = YES;
+            view.autoresizingMask = UIViewAutoresizingNone;
+            view.frame = frame;
+            [self addSubview:view];
+        }
+    }
+}
+
+/*
 	
 	LTTextRelease(_imageView);
 	_imageView = [[NSMutableDictionary alloc] init];
@@ -211,15 +235,24 @@
 	
 	CGContextRef context = UIGraphicsGetCurrentContext();
     // Drawing code
+    
+    LTTextView* textView = [self _textView];
+    if ([textView respondsToSelector:@selector(textview:willDrawPageIndex:inContext:)]) {
+        [textView.textViewDelegate textview:textView willDrawPageIndex:_index inContext:context];
+    }
 	
 	CGContextScaleCTM(context, 1.0, -1.0);
 	CGContextTranslateCTM(context, 0, -self.bounds.size.height);
 	
 	dispatch_async(dispatch_get_main_queue(), ^(void) {
-		[self showAttachmentsIfNeeded];
+        [self showAttachmentsIfNeeded];
 	});
 	
 	[_layouter drawInContext:context atPage:_index];
+    
+    if ([textView respondsToSelector:@selector(textview:didDrawPageIndex:inContext:)]) {
+        [textView.textViewDelegate textview:textView didDrawPageIndex:_index inContext:context];
+    }
 }
 
 

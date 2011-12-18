@@ -31,6 +31,8 @@
 
 @implementation LTTextView
 
+@synthesize textViewDelegate;
+
 
 - (id)initWithFrame:(CGRect)frame
 {

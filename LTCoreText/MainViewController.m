@@ -28,6 +28,7 @@
     self = [super initWithNibName:@"MainViewController" bundle:nil];
     if (self) {
         _mainView = [[LTTextView alloc] initWithFrame:CGRectZero];
+        _mainView.textViewDelegate = self;
         _mainView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
         
         NSData* htmlData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"README" ofType:@"html"]];
@@ -154,4 +155,11 @@
     }
 }
 
+-(UIView *)textview:(LTTextView *)textView viewForRunDictionary:(NSDictionary *)dict
+{
+    NSLog(@"run dict: %@", dict);
+    UIView* view = [[UIView alloc] initWithFrame:CGRectZero];
+    view.backgroundColor = [UIColor colorWithHue:0.05*(rand()%20) saturation:0.05*(rand()%20) brightness:0.5 alpha:1.0];
+    return view;
+}
 @end

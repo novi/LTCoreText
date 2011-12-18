@@ -353,8 +353,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 - (void)_storeFrameOfAttachment:(CTFrameRef)frame to:(NSMutableArray*)dst
 {
-	//CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
-	//CGFloat height = contentFrame.size.height;
+	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+	CGFloat height = contentFrame.size.height;
 	
 	CFArrayRef lines = CTFrameGetLines(frame);
 	for (CFIndex i = 0; i < CFArrayGetCount(lines); i++) {
@@ -365,7 +365,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 			CFDictionaryRef attr = CTRunGetAttributes(run);
 			if (CFDictionaryGetValue(attr, kCTRunDelegateAttributeName)) {
                 
-                [dst addObject:(id)attr];
+                //[dst addObject:(id)attr];
                 
 				/*DTTextAttachment* attachment = [(id)attr objectForKey:@"DTTextAttachment"];
                  
@@ -377,23 +377,25 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                  attachment.contentURL = fixedURL;
                  }
                  }
-                 
+                 */
+                
+                const CGSize* adv = CTRunGetAdvancesPtr(run);
+                
                  CGPoint p;
                  CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &p);
                  float ascent;
                  CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
                  p.y += ascent;
-                 NSLog(@"line:%p count: %ld", line, CTLineGetStringRange(line).length);
+                 NSLog(@"line:%p count: %ld, ascent:%f, %@", line, CTLineGetStringRange(line).length, ascent, NSStringFromCGSize(adv[0]) );
                  //NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
-                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:attachment
-                 ,@"attachment"
+                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(id)attr
+                 ,@"attributes"
                  ,[NSValue valueWithCGPoint:p]
                  ,@"position"
-                 ,[NSValue valueWithCGPoint:CGPointMake(p.x, (height - p.y) + _contentInset.bottom)]
-                 ,@"position_view", nil];
+                 ,[NSValue valueWithCGRect:CGRectMake(p.x, (height - p.y) + _contentInset.bottom, adv[0].width, ascent) ]
+                 ,@"frame",nil];
                  [dst addObject:dict];
-                 */
-				//				[array addObject:attachment];
+                
 			}
 		}
 	}
@@ -425,11 +427,18 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 -(NSArray *)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
-	NSArray* frames = [_frames objectAtIndex:index];
+    if (_needFrameLayout) {
+        [self _layoutFrame];
+    }
+    
+    return [[[[_attachments objectAtIndex:index] objectAtIndex:col] copy] autorelease];
+    
+	/*NSArray* frames = [_frames objectAtIndex:index];
 	if ([frames count] <= col) {
 		return nil;
 	}
 	return [self _attachmentsWithCTFrame:(CTFrameRef)[frames objectAtIndex:col]];
+     */
 }
 
 

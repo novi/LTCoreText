@@ -7,8 +7,9 @@
 //
 
 #import "FlipsideViewController.h"
+#import "LTTextView.h"
 
-@interface MainViewController : UIViewController <FlipsideViewControllerDelegate>
+@interface MainViewController : UIViewController <FlipsideViewControllerDelegate, LTTextViewDelegate>
 
 @property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
 

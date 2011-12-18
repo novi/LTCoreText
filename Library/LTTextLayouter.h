@@ -26,6 +26,7 @@
 @property (nonatomic) BOOL useHyphenation; // attributedString must be hyphenated with (soft-hyphen, u0x00AD)
 
 
+- (CGRect)_columnFrameWithColumn:(NSUInteger)col;
 - (NSUInteger)columnCountAtPageIndex:(NSUInteger)index;
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
 - (NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col;
