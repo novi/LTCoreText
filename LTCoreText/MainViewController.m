@@ -45,12 +45,19 @@
         
         _landscapeLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString
                                                                           frameSize:CGSizeMake(1024, 768-20)
-                                                                    landscapeLayout:YES
                                                                             options:nil];
+        _landscapeLayouter.columnCount = 3;
+        [_landscapeLayouter layoutIfNeeded];
+        
         _portraitLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString
-                                                                   frameSize:CGSizeMake(768, 1024-20) 
-                                                             landscapeLayout:NO
+                                                                   frameSize:CGSizeMake(768, 1024-20)
                                                                      options:nil];
+        
+        _portraitLayouter.columnCount = 2;
+        [_portraitLayouter layoutIfNeeded];
+        
+        NSLog(@"%@", [_portraitLayouter valueForKey:@"attachments"]);
+        
     }
     return self;
 }
@@ -71,7 +78,9 @@
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
         [_mainView insertLayouter:_landscapeLayouter atIndex:0];
     } else {
-        [_mainView insertLayouter:_portraitLayouter atIndex:0];
+        if (_portraitLayouter) {
+            [_mainView insertLayouter:_portraitLayouter atIndex:0];
+        }
     }
     
     [super viewDidLoad];

@@ -10,15 +10,15 @@
 
 CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
-NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
+
 
 @interface LTTextLayouter()
 {
 	NSAttributedString* _attributedString;
 	CGSize _frameSize;
-	BOOL _landscapeLayout;
 	NSDictionary* _options;
 	
+    NSUInteger _columnCount;
 	BOOL _needFrameLayout;
 	CTFramesetterRef _framesetter;
 	NSMutableArray* _frames;
@@ -29,11 +29,10 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 }
 
 - (void)_createAttachmentsArray;
-- (NSUInteger)_imageCountOfAttachments:(NSArray*)array;
 - (NSArray*)_attachmentsWithCTFrame:(CTFrameRef)frame;
 - (void)_layoutFrame;
 
-@property (nonatomic, retain) NSURL* originalURL;
+
 
 @end
 
@@ -45,52 +44,8 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 @synthesize columnSpace = _columnSpace;
 @synthesize justifyThreshold;
 @synthesize useHyphenation;
-@synthesize isLandscapeLayout = _landscapeLayout;
-@synthesize originalURL;
+@synthesize columnCount = _columnCount;
 
-+(NSAttributedString *)generateAttributedStringFromHTMLString:(NSData*)htmlData title:(NSString *)title options:(NSDictionary *)options
-{
-	
-	NSMutableDictionary* attrOptions = [NSMutableDictionary dictionaryWithCapacity:5];
-	/*[attrOptions setObject:@"Palatino" forKey:DTDefaultFontFamily];
-	[attrOptions setObject:[NSNumber numberWithFloat:14.0/12.0] forKey:NSTextSizeMultiplierDocumentOption];
-	[attrOptions setObject:[NSNumber numberWithFloat:1.2] forKey:DTDefaultLineHeightMultiplier];
-	[attrOptions setObject:[NSValue valueWithCGSize:CGSizeMake(1, 1)] forKey:DTMaxImageSize];
-	//[attrOptions setObject:[NSNumber numberWithBool:self.hyphenSwitch.on] forKey:DTUseHyphenation];
-	*/
-    NSDictionary* attr = nil;
-     
-	NSAttributedString* mainString = [[NSAttributedString alloc] initWithHTML:htmlData options:attrOptions documentAttributes:&attr];
-	
-	// Create Title Attibuted String
-	NSMutableDictionary* titleAttributes = [NSMutableDictionary dictionaryWithCapacity:5];
-	CTFontRef titleFont = CTFontCreateWithName(CFSTR("Palatino-Bold"), 28.0, NULL);
-	UIColor* titleColor = [UIColor colorWithWhite:0.1 alpha:1.0];
-	[titleAttributes setObject:(id)titleFont forKey:(id)kCTFontAttributeName];
-	CFRelease(titleFont);
-	[titleAttributes setObject:(id)[titleColor CGColor]	forKey:(id)kCTForegroundColorAttributeName];
-	
-	CTParagraphStyleSetting titleStyleSetting[2];
-	titleStyleSetting[0].valueSize = sizeof(CGFloat);
-	titleStyleSetting[0].spec = kCTParagraphStyleSpecifierParagraphSpacingBefore;
-	CGFloat titleParaSpaceBefore = 24.0f;
-	titleStyleSetting[0].value = &titleParaSpaceBefore;
-	
-	titleStyleSetting[1].valueSize = sizeof(CGFloat);
-	titleStyleSetting[1].spec = kCTParagraphStyleSpecifierParagraphSpacing;
-	CGFloat titleParaSpace = 24.0f;
-	titleStyleSetting[1].value = &titleParaSpace;
-	
-	CTParagraphStyleRef titleStyle = CTParagraphStyleCreate(titleStyleSetting, 2);
-	[titleAttributes setObject:(id)titleStyle forKey:(id)kCTParagraphStyleAttributeName];
-	CFRelease(titleStyle);
-	
-	NSMutableAttributedString* attrString = [[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", title] attributes:titleAttributes] autorelease];
-	
-	[attrString appendAttributedString:mainString];
-	
-	return attrString;
-}
 
 #pragma mark -
 
@@ -100,7 +55,7 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
     return nil;
 }
 
--(id)initWithAttributedString:(NSAttributedString *)attrString frameSize:(CGSize)size landscapeLayout:(BOOL)landscape options:(NSDictionary *)options
+-(id)initWithAttributedString:(NSAttributedString *)attrString frameSize:(CGSize)size options:(NSDictionary *)options
 {
     self = [super init];
     if (self) {
@@ -108,7 +63,7 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 		_options = [[NSDictionary dictionaryWithDictionary:options] retain];
 		_framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)_attributedString);
 		_frameSize = size;
-		_landscapeLayout = landscape;
+		
 		_needFrameLayout = YES;
 		self.backgroundColor = [UIColor colorWithRed:248/255.0 green:244/255.0 blue:230/255.0 alpha:1.0];
 		self.contentInset = UIEdgeInsetsMake(10, 10, 10, 10);
@@ -116,14 +71,14 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 		self.justifyThreshold = 1.0;
 		self.useHyphenation = NO;
 		
-		self.originalURL = [options objectForKey:LTTextLayouterOptionOriginalURLKey];
+		
     }
     return self;
 }
 
 - (void)dealloc
 {
-	self.originalURL = nil;
+    
 	LTTextMethodDebugLog();
 	LTTextRelease(_frames);
 	LTTextRelease(_attributedString);
@@ -134,9 +89,9 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 
 #pragma mark -
 
-- (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index
+- (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
-	CTFrameRef frame = (CTFrameRef)[[_frames objectAtIndex:index] lastObject];
+	CTFrameRef frame = (CTFrameRef)[[_frames objectAtIndex:index] objectAtIndex:col];
 	CFRange range = CTFrameGetVisibleStringRange(frame);
 	
 	return NSMakeRange(range.location, range.length);
@@ -149,7 +104,7 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	}
 	
 	if (index+1 > [_attributedString length]) {
-		return 0;
+		return 0; // out of index bounds
 	}
 	
 	/*NSUInteger count = 0;
@@ -162,94 +117,28 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	
 	return 0;
 }
-/*
- - (CGSize)_columnSize
- {
- CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
- 
- CGFloat width = contentFrame.size.width;
- width -= _columnSpace*(_columnCount-1);
- width = floorf(width/(CGFloat)_columnCount);
- return CGSizeMake(width, contentFrame.size.height);
- }*/
+
+- (CGSize)_columnSize
+{
+    CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+    
+    CGFloat width = contentFrame.size.width;
+    width -= _columnSpace*(_columnCount-1);
+    width = floorf(width/(CGFloat)_columnCount);
+    return CGSizeMake(width, contentFrame.size.height);
+}
 
 - (CGRect)_columnFrameWithColumn:(NSUInteger)col
 {
 	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
-	CGFloat width = (contentFrame.size.width - _columnSpace*2.0)/2.0;
-	
-	if (_landscapeLayout) {
-		if (col == 1) {
-			contentFrame.origin.x += width + _columnSpace;
-			contentFrame.size.width = width;
-		} else {
-			contentFrame.size.width = width;
-		}
-	}
-	
+    CGFloat width = [self _columnSize].width;
+    
+    contentFrame.size.width = width;
+    contentFrame = CGRectOffset(contentFrame, width*col + _columnSpace*col , 0);
 	return contentFrame;
 }
 
-- (CTFrameRef)_frameWithContentFrame:(CGRect)contentFrame range:(CFRange)range rightImageAlign:(BOOL)rightImage
-{
-	//CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
-	CGSize size = contentFrame.size;
-	
-	CGFloat imageWidths_pt[] = {100, 140, 160, 200};
-	NSUInteger allowImageCounts_pt[] = {0, 1, 2, NSUIntegerMax};
-	
-	CGFloat imageWidths_ls[] = {20, 120, 160, 180};
-	NSUInteger allowImageCounts_ls[] = {0, 1, 2, NSUIntegerMax};
-	
-	CGFloat* imageWidths;
-	NSUInteger* allowImageCounts;
-	if (_landscapeLayout) {
-		imageWidths = imageWidths_ls;
-		allowImageCounts = allowImageCounts_ls;
-	} else {
-		imageWidths = imageWidths_pt;
-		allowImageCounts = allowImageCounts_pt;
-	}
-	
-	for (int i = 0 ; i < 4; i++) {
-		CGFloat imageWidth = imageWidths[i];
-		CGRect r;
-		if (rightImage) {
-			r = CGRectMake(contentFrame.origin.x, contentFrame.origin.y, size.width-imageWidth-_columnSpace, size.height);
-		} else {
-			r = CGRectMake(contentFrame.origin.x+imageWidth+_columnSpace, contentFrame.origin.y, size.width-imageWidth-_columnSpace, size.height);
-		}
-		CGPathRef path =  [[UIBezierPath bezierPathWithRect:r] CGPath];	
-		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, range, path, NULL);
-		NSUInteger imageCount = [self _imageCountOfAttachments:[self _attachmentsWithCTFrame:frame]];
-		if (imageCount <= allowImageCounts[i]) {
-			return (CTFrameRef)[(id)frame autorelease];
-		}
-		LTTextCFRelease(frame);
-	}
-	
-	return NULL;
-}
 
-
-- (CGRect)imageFrameAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
-{
-	CGRect colFrame = [self _columnFrameWithColumn:col];
-	NSArray* frames = [_frames objectAtIndex:index];
-	if ([frames count] <= col) {
-		return CGRectZero;
-	}
-	CTFrameRef frame = (CTFrameRef)[frames objectAtIndex:col];
-	
-	CGRect pathBBox = CGPathGetBoundingBox(CTFrameGetPath(frame));
-	
-	colFrame.size.width -= pathBBox.size.width+_columnSpace;
-	if (col == 1) {
-		//colFrame.origin.x += pathBBox.size.width+_columnSpace;
-	}
-	NSLog(@"image %@ at %d col %d", NSStringFromCGRect(colFrame), index, col);
-	return colFrame;
-}
 
 - (void)_layoutFrame
 {
@@ -263,35 +152,27 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	
 	NSMutableArray* currentFrames = [NSMutableArray array];
 	for (; ; ) {
-		CGRect contentFrame;
-		CTFrameRef frame;
-		if (_landscapeLayout) {
-			if ([currentFrames count] == 1) {
-				contentFrame = [self _columnFrameWithColumn:1];
-				frame = [self _frameWithContentFrame:contentFrame range:strRange rightImageAlign:NO];
-			} else {
-				contentFrame = [self _columnFrameWithColumn:0];
-				frame = [self _frameWithContentFrame:contentFrame range:strRange rightImageAlign:NO];
-			}
-		} else {
-			contentFrame = [self _columnFrameWithColumn:0];
-			frame = [self _frameWithContentFrame:contentFrame range:strRange rightImageAlign:NO];
-		}
+        
+		CGRect contentFrame = [self _columnFrameWithColumn:currentFrames.count];
+        
+        NSLog(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
+        
+        CGPathRef path =  [[UIBezierPath bezierPathWithRect:contentFrame] CGPath];
+		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, strRange, path, NULL);
 		
-		if (_landscapeLayout) {
-			if ([currentFrames count] == 2) {
-				// Create new frame array
-				[_frames addObject:currentFrames];
-				currentFrames = [NSMutableArray array];
-				[currentFrames addObject:(id)frame];
-			} else {
-				[currentFrames addObject:(id)frame];
-			}
-		} else {
-			[_frames addObject:[NSArray arrayWithObject:(id)frame]];
-		}
+        [currentFrames addObject:(id)frame];
 		
-		NSLog(@"frame %p, %@, image %d", frame, NSStringFromCGRect(CGPathGetBoundingBox(CTFrameGetPath(frame))), [[self _attachmentsWithCTFrame:frame] count]);
+        // current frame(columns) full, change to next page (and col=0)
+        if ([currentFrames count] == _columnCount) {
+            // Create new frame array
+            [_frames addObject:currentFrames];
+            currentFrames = [NSMutableArray array];
+            //[currentFrames addObject:(id)frame];
+        } else {
+            //[currentFrames addObject:(id)frame];
+        }
+		
+		//NSLog(@"frame %p, %@, image %d", frame, NSStringFromCGRect(CGPathGetBoundingBox(CTFrameGetPath(frame))), [[self _attachmentsWithCTFrame:frame] count]);
 		
 		CFRange visibleRange = CTFrameGetVisibleStringRange(frame);
 		if (visibleRange.length+visibleRange.location >= length) {
@@ -328,34 +209,26 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	return _frames.count;
 }
 
--(NSUInteger)columnCount
-{	
-	if (_landscapeLayout) {
-		return 2;
-	}
-	return 1;
+
+-(void)setContentInset:(UIEdgeInsets)contentInset
+{
+    _contentInset = contentInset;
+    _needFrameLayout = YES;
 }
 
-/*
- -(void)setContentInset:(UIEdgeInsets)contentInset
- {
- _contentInset = contentInset;
- _needFrameLayout = YES;
- }
- 
- -(void)setColumnCount:(NSUInteger)columnCount
- {
- _columnCount = columnCount;
- _needFrameLayout = YES;
- }
- 
- -(void)setColumnSpace:(CGFloat)columnSpace
- {
- _columnSpace = columnSpace;
- _needFrameLayout = YES;
- }*/
+-(void)setColumnCount:(NSUInteger)columnCount
+{
+    _columnCount = columnCount;
+    _needFrameLayout = YES;
+}
 
--(void)doLayout
+-(void)setColumnSpace:(CGFloat)columnSpace
+{
+    _columnSpace = columnSpace;
+    _needFrameLayout = YES;
+}
+
+-(void)layoutIfNeeded
 {
 	if (_needFrameLayout) {
 		[self _layoutFrame];
@@ -442,17 +315,17 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 			}
 		}
 		
-		CGRect imageFrame = [self imageFrameAtPageIndex:page column:i];
-		NSArray* attachments = [[_attachments objectAtIndex:page] objectAtIndex:i];
-		for (NSDictionary* dict in attachments) {
-			NSLog(@"%@", dict);
-			CGPoint p = [[dict objectForKey:@"position"] CGPointValue];
-			CGContextSetStrokeColorWithColor(context, [[UIColor grayColor] CGColor]);
-			CGContextMoveToPoint(context, p.x-5.0, roundf(p.y)+0.5);
-			CGContextAddLineToPoint(context, p.x-imageFrame.size.width-_columnSpace, roundf(p.y)+0.5);
-			CGContextStrokePath(context);
-			//CGContextFillRect(context, CGRectMake(p.x, p.y, 10, 10));
-		}
+		/*CGRect imageFrame = [self imageFrameAtPageIndex:page column:i];
+         NSArray* attachments = [[_attachments objectAtIndex:page] objectAtIndex:i];
+         for (NSDictionary* dict in attachments) {
+         NSLog(@"%@", dict);
+         CGPoint p = [[dict objectForKey:@"position"] CGPointValue];
+         CGContextSetStrokeColorWithColor(context, [[UIColor grayColor] CGColor]);
+         CGContextMoveToPoint(context, p.x-5.0, roundf(p.y)+0.5);
+         CGContextAddLineToPoint(context, p.x-imageFrame.size.width-_columnSpace, roundf(p.y)+0.5);
+         CGContextStrokePath(context);
+         //CGContextFillRect(context, CGRectMake(p.x, p.y, 10, 10));
+         }*/
 		
 		
 		CGContextRestoreGState(context);
@@ -466,8 +339,8 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 
 - (void)_storeFrameOfAttachment:(CTFrameRef)frame to:(NSMutableArray*)dst
 {
-	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
-	CGFloat height = contentFrame.size.height;
+	//CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+	//CGFloat height = contentFrame.size.height;
 	
 	CFArrayRef lines = CTFrameGetLines(frame);
 	for (CFIndex i = 0; i < CFArrayGetCount(lines); i++) {
@@ -476,32 +349,35 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 		for (CFIndex ri = 0; ri < CFArrayGetCount(runs); ri++) {
 			CTRunRef run = CFArrayGetValueAtIndex(runs, ri);
 			CFDictionaryRef attr = CTRunGetAttributes(run);
-			if (CFDictionaryGetValue(attr, @"DTTextAttachment")) {
+			if (CFDictionaryGetValue(attr, kCTRunDelegateAttributeName)) {
+                
+                [dst addObject:(id)attr];
+                
 				/*DTTextAttachment* attachment = [(id)attr objectForKey:@"DTTextAttachment"];
-				
-				// Fix Image URL
-				if (attachment.contentType == DTTextAttachmentTypeImage) {
-					if ([attachment.contentURL host].length == 0) {
-						NSURL* fixedURL = [NSURL URLWithString:[attachment.contentURL absoluteString] relativeToURL:self.originalURL];
-						//NSLog(@"not full url: %@ ,fixed %@", attachment.contentURL, [fixedURL absoluteURL]);
-						attachment.contentURL = fixedURL;
-					}
-				}
-				
-				CGPoint p;
-				CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &p);
-				float ascent;
-				CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
-				p.y += ascent;
-				NSLog(@"line:%p count: %ld", line, CTLineGetStringRange(line).length);
-				//NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
-				NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:attachment
-									  ,@"attachment"
-									  ,[NSValue valueWithCGPoint:p]
-									  ,@"position"
-									  ,[NSValue valueWithCGPoint:CGPointMake(p.x, (height - p.y) + _contentInset.bottom)]
-									  ,@"position_view", nil];
-				[dst addObject:dict];
+                 
+                 // Fix Image URL
+                 if (attachment.contentType == DTTextAttachmentTypeImage) {
+                 if ([attachment.contentURL host].length == 0) {
+                 NSURL* fixedURL = [NSURL URLWithString:[attachment.contentURL absoluteString] relativeToURL:self.originalURL];
+                 //NSLog(@"not full url: %@ ,fixed %@", attachment.contentURL, [fixedURL absoluteURL]);
+                 attachment.contentURL = fixedURL;
+                 }
+                 }
+                 
+                 CGPoint p;
+                 CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &p);
+                 float ascent;
+                 CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
+                 p.y += ascent;
+                 NSLog(@"line:%p count: %ld", line, CTLineGetStringRange(line).length);
+                 //NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
+                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:attachment
+                 ,@"attachment"
+                 ,[NSValue valueWithCGPoint:p]
+                 ,@"position"
+                 ,[NSValue valueWithCGPoint:CGPointMake(p.x, (height - p.y) + _contentInset.bottom)]
+                 ,@"position_view", nil];
+                 [dst addObject:dict];
                  */
 				//				[array addObject:attachment];
 			}
@@ -533,19 +409,6 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	return array;
 }
 
-- (NSUInteger)_imageCountOfAttachments:(NSArray*)array
-{
-	NSUInteger count = 0;
-	for (NSDictionary* dict in array) {
-		/*DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
-		if (attachment.contentType == DTTextAttachmentTypeImage) {
-			count++;
-		}*/
-	}
-	
-	return count;
-}
-
 -(NSArray *)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
 	NSArray* frames = [_frames objectAtIndex:index];
@@ -555,69 +418,5 @@ NSString* const LTTextLayouterOptionOriginalURLKey = @"originalURL";
 	return [self _attachmentsWithCTFrame:(CTFrameRef)[frames objectAtIndex:col]];
 }
 
--(NSArray *)imageAttachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col
-{
-	NSArray* frames = [_frames objectAtIndex:index];
-	if ([frames count] <= col) {
-		return nil;
-	}
-	NSMutableArray* array = [NSMutableArray array];
-	[self _storeFrameOfAttachment:(CTFrameRef)[frames objectAtIndex:col] to:array];
-	
-	NSMutableArray* dst = [NSMutableArray array];
-	for (NSDictionary* dict in array) {
-		/*DTTextAttachment* attachment = [dict objectForKey:@"attachemnt"];
-		if (attachment.contentType == DTTextAttachmentTypeImage) {
-			[dst addObject:dict];
-		}*/
-	}
-	return dst;
-}
-
--(NSArray *)imageFrameWithImageSizes:(NSArray *)sizes atPageIndex:(NSUInteger)index column:(NSUInteger)col
-{
-	NSArray* attachments = [self imageAttachmentsAtPageIndex:index column:col];
-	if (attachments.count != sizes.count) {
-		LTTextLogError(@"Error: %s, image size is not equal to attachment count", __func__);
-		return nil;
-	}
-	CGRect imageFrame = [self imageFrameAtPageIndex:index column:col];
-	
-	NSMutableArray* dst = [NSMutableArray array];
-	CGRect lastFrame = CGRectZero;
-	
-	NSUInteger i = 0;
-	for (NSValue* sizeVal in sizes) {
-		NSDictionary* dict = [attachments objectAtIndex:i];
-		CGPoint p = [[dict objectForKey:@"position_view"] CGPointValue];
-		
-		CGSize imgSize = [sizeVal CGSizeValue];
-		CGFloat height = MAX(imgSize.height, 40);
-		CGRect frame = CGRectMake(imageFrame.origin.x, floorf(p.y-height), imageFrame.size.width, height);
-		frame = UIEdgeInsetsInsetRect(frame, UIEdgeInsetsMake(0, 0, kLTTextLayouterLineToImageSpace, 0));
-		
-		BOOL frameBoundsAdjust = NO;
-		if (!CGRectContainsRect(CGRectInset(CGRectMake(0, 0, _frameSize.width, _frameSize.height), 0, 10), frame) || frame.origin.y < 10) {
-			frame.origin.y += (kLTTextLayouterLineToImageSpace*2) + height;
-			frameBoundsAdjust = YES;
-		}
-		
-		if ( !CGRectEqualToRect(lastFrame, CGRectZero) &&
-			CGRectIntersectsRect(lastFrame, frame)) {
-			if (frameBoundsAdjust) {
-				frame.origin.y += (kLTTextLayouterLineToImageSpace) + height;
-			} else {
-				frame.origin.y += (kLTTextLayouterLineToImageSpace*2) + height;
-			}
-		}
-		
-		lastFrame = frame;
-		[dst addObject:[NSValue valueWithCGRect:frame]];
-		// imageView.frame = frame;
-		i++;
-	}
-	
-	return dst;
-}
 
 @end

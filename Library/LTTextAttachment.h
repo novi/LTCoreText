@@ -10,5 +10,7 @@
 
 @protocol LTTextAttachment <NSObject>
 
+@required
+@property (nonatomic) CGSize displaySize;
 
 @end

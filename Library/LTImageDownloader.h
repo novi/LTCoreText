@@ -16,6 +16,9 @@ typedef void (^LTImageDownloadCallback)(UIImage* image, NSError* error);
 
 @interface LTImageDownloader : NSObject
 
++ (void)setOperationQueue;
++ (NSOperationQueue*)currentOperationQueue;
+
 +(id)sharedInstance;
 - (void)downloadImageWithURL:(NSURL*)url imageBounds:(CGSize)bounds options:(NSDictionary*)options completion:(LTImageDownloadCallback)comp;
 

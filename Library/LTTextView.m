@@ -105,7 +105,7 @@
 	}
 	
 	if (strIndex) {
-		*strIndex = [layouter rangeOfStringAtPageIndex:pageIndex].location;
+		*strIndex = [layouter rangeOfStringAtPageIndex:pageIndex column:0].location;
 	}
 }
 
