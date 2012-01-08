@@ -236,6 +236,8 @@
 	CGContextRef context = UIGraphicsGetCurrentContext();
     // Drawing code
     
+
+    
     LTTextView* textView = [self _textView];
     if ([textView respondsToSelector:@selector(textview:willDrawPageIndex:inContext:)]) {
         [textView.textViewDelegate textview:textView willDrawPageIndex:_index inContext:context];
@@ -249,6 +251,12 @@
 	});
 	
 	[_layouter drawInContext:context atPage:_index];
+    
+#if LTTextPageViewDrawPageNumDebug
+	CGContextTranslateCTM(context, 0, self.bounds.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    [[NSString stringWithFormat:@"%d", _index] drawAtPoint:CGPointMake(0, 0) withFont:[UIFont boldSystemFontOfSize:28.0f]];
+#endif
     
     if ([textView respondsToSelector:@selector(textview:didDrawPageIndex:inContext:)]) {
         [textView.textViewDelegate textview:textView didDrawPageIndex:_index inContext:context];

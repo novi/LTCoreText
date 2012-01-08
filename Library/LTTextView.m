@@ -12,6 +12,8 @@
 
 @interface LTTextView()
 {
+    LTTextViewLayoutMode _layoutMode;
+    BOOL _layoutModeChanged;
 	BOOL _framesizeChanged;
 	NSMutableArray* _layouters;
 	NSMutableArray* _loadedViews;
@@ -23,6 +25,7 @@
 	NSUInteger _currentScrollIndex;
 }
 
+- (CGSize)_contentSizeForCurrentLayoutMode;
 - (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index indexOnLayouter:(NSUInteger*)indexOn;
 - (NSUInteger)_scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index;
 - (void)_recreateTextviews;
@@ -32,6 +35,7 @@
 @implementation LTTextView
 
 @synthesize textViewDelegate;
+@synthesize layoutMode = _layoutMode;
 
 
 - (id)initWithFrame:(CGRect)frame
@@ -51,6 +55,7 @@
 		_loadedViews = [[NSMutableArray alloc] init];
 		
 		_currentScrollIndex = NSUIntegerMax;
+        _layoutMode = LTTextViewLayoutModeNormal;
     }
     return self;
 }
@@ -194,7 +199,7 @@
 	
 	
 	CGRect bounds = self.bounds;
-	self.contentSize = CGSizeMake(bounds.size.width*_pageCount, bounds.size.height);
+	self.contentSize = [self _contentSizeForCurrentLayoutMode];
 	
 	[self _recreateTextviews];
 	
@@ -219,7 +224,7 @@
 	[self _calculatePageCount];
 	
 	CGRect bounds = self.bounds;
-	self.contentSize = CGSizeMake(bounds.size.width*_pageCount, bounds.size.height);
+	self.contentSize = [self _contentSizeForCurrentLayoutMode];
 	
 	[self _recreateTextviews];
 	
@@ -227,11 +232,49 @@
 	self.scrollEnabled = YES;
 }
 
+- (CGSize)_contentSizeForCurrentLayoutMode
+{
+    CGRect bounds = self.bounds;
+    
+    if (_layoutMode == LTTextViewLayoutModeNormal) {
+        return CGSizeMake(bounds.size.width*_pageCount, bounds.size.height);
+    } else if (_layoutMode == LTTextViewLayoutModeReverse) {
+        return CGSizeMake(bounds.size.width*_pageCount, bounds.size.height);
+    } else if (_layoutMode == LTTextViewLayoutModeVertical) {
+        return CGSizeMake(bounds.size.width, bounds.size.height*_pageCount);
+    }
+    return CGSizeZero;
+}
+
+- (CGPoint)_contentOffsetForIndex:(NSUInteger)index
+{
+    CGRect bounds = self.bounds;
+    
+    if (_layoutMode == LTTextViewLayoutModeNormal) {
+        return CGPointMake(bounds.size.width*index, 0);
+    } else if (_layoutMode == LTTextViewLayoutModeReverse) {
+        return CGPointMake(bounds.size.width*(_pageCount-index-1), 0);
+    } else if (_layoutMode == LTTextViewLayoutModeVertical) {
+        return CGPointMake(0, bounds.size.height*index);
+    }
+    
+    return CGPointZero;
+}
+
 - (NSUInteger)_currentScrollIndex
 {
 	CGFloat pageWidth = self.bounds.size.width;
+    CGFloat pageHeight = self.bounds.size.height;
+    
 	NSInteger pageIndex = 0;
-	pageIndex = floorf(self.contentOffset.x/pageWidth);
+	if (_layoutMode == LTTextViewLayoutModeNormal) {
+        pageIndex = floorf(self.contentOffset.x/pageWidth);
+    } else if (_layoutMode == LTTextViewLayoutModeReverse) {
+        pageIndex = floorf(self.contentOffset.x/pageWidth);
+        pageIndex = _pageCount - 1 - pageIndex;
+    } else if (_layoutMode == LTTextViewLayoutModeVertical) {
+        pageIndex = floorf(self.contentOffset.y/pageHeight);
+    }
 	
 	return pageIndex;
 }
@@ -240,7 +283,14 @@
 {
 	if (index < _pageCount) {
 		CGRect bounds = self.bounds;
-		CGRect frame = CGRectMake(bounds.size.width*index, 0, bounds.size.width, bounds.size.height);
+		CGRect frame; 
+        if (_layoutMode == LTTextViewLayoutModeNormal) {
+            frame = CGRectMake(bounds.size.width*index, 0, bounds.size.width, bounds.size.height);
+        } else if (_layoutMode == LTTextViewLayoutModeReverse) {
+            frame = CGRectMake(bounds.size.width*(_pageCount-index-1), 0, bounds.size.width, bounds.size.height);
+        } else if (_layoutMode == LTTextViewLayoutModeVertical) {
+            frame = CGRectMake(0, bounds.size.height*index, bounds.size.width, bounds.size.height);
+        }
 		//frame = UIEdgeInsetsInsetRect(frame, _contentInset);
 		return frame;
 	}
@@ -305,15 +355,19 @@
 	}
 	
 	[self _calculatePageCount];
-	
-	CGRect bounds = self.bounds;
-	self.contentSize = CGSizeMake(bounds.size.width*_pageCount, bounds.size.height);
+	self.contentSize = [self _contentSizeForCurrentLayoutMode];
 	
 	//self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:_currentPageState._layouter atPageIndex:_currentPageState._pageIndex], 0);
 	
 	//[self setContentOffset:CGPointMake(self.bounds.size.width*_currentPageIndex, 0) animated:NO];
 	//[self scrollToStringIndex:_currentState.strIndex onAttributedStringAtIndex:_currentState.attrIndex animated:YES];
-	[self scrollToStringIndex:_currentState.strIndex onLayouterAtIndex:_currentState.attrIndex animated:NO];
+	
+    if (_layoutModeChanged) {
+        _layoutModeChanged = NO;
+        self.contentOffset = [self _contentOffsetForIndex:_currentScrollIndex];
+    } else {
+        //[self scrollToStringIndex:_currentState.strIndex onLayouterAtIndex:_currentState.attrIndex animated:NO];
+    }
 }
 
 -(void)setFrame:(CGRect)frame
@@ -327,6 +381,28 @@
 	//_framesizeChanged = YES;
 }
 
+-(void)setLayoutMode:(LTTextViewLayoutMode)layoutMode
+{
+    if (_layoutMode == layoutMode) {
+        return;
+    }
+    if (layoutMode == LTTextViewLayoutModeNormal ||
+        layoutMode == LTTextViewLayoutModeReverse ||
+        layoutMode == LTTextViewLayoutModeVertical) {
+        _layoutMode = layoutMode;
+    } else {
+        _layoutMode = LTTextViewLayoutModeNormal;
+    }
+    
+    NSLog(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
+    
+    _layoutModeChanged = YES;
+    
+    _framesizeChanged = YES;
+    [self setNeedsLayout];
+}
+
+
 - (void)_recreateTextviews
 {
 	if (self.hidden || self.alpha == 0.0) {
@@ -334,7 +410,9 @@
 		return;
 	}
 	
-	LTTextLogInfo(@"current scroll index: %d", _currentScrollIndex);
+	LTTextLogInfo(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
+    
+    
 	
 	NSMutableArray* viewsToUse = [NSMutableArray array];
 	for (int i = 0; i < 3; i++) {
@@ -361,7 +439,7 @@
 			[scrollIndexToUse addObject:[NSNumber numberWithUnsignedInteger:index]];
 		}
 	}
-	NSLog(@"%@", scrollIndexToUse);
+	NSLog(@"scrollIndexToUse: %@", scrollIndexToUse);
 	
 	// Remove loaded view if not needed
 	for (NSUInteger i = 0; i < _loadedViews.count; i++) {
@@ -420,6 +498,7 @@
 	}
 	
 	if ([self _currentScrollIndex] != _currentScrollIndex || framesizeChanged) {
+        
 		_currentScrollIndex = [self _currentScrollIndex];
 
 		[self stringIndex:&_currentState.strIndex layouterIndex:&_currentState.attrIndex];

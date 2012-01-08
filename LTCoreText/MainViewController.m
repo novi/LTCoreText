@@ -22,6 +22,8 @@
 @end
 
 @implementation MainViewController
+@synthesize toolbar = _toolbar;
+@synthesize layoutBarButton = _layoutBarButton;
 
 @synthesize flipsidePopoverController = _flipsidePopoverController;
 
@@ -32,6 +34,7 @@
         _mainView = [[LTTextView alloc] initWithFrame:CGRectZero];
         _mainView.textViewDelegate = self;
         _mainView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+        //_mainView.layoutMode = LTTextViewLayoutModeVertical;
         
         NSData* htmlData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"README" ofType:@"html"]];
         _attrString = [[NSMutableAttributedString alloc] init];
@@ -39,7 +42,7 @@
         NSMutableDictionary* options = [NSMutableDictionary dictionaryWithCapacity:1];
         [options setObject:[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] forKey:NSBaseURLDocumentOption];
         
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             if (i != 0) {
                 [_attrString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n\n\n\n\n"]];
             }
@@ -88,6 +91,8 @@
         }
     }
     
+    [self.view bringSubviewToFront:self.toolbar];
+    
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
 }
@@ -95,6 +100,8 @@
 - (void)viewDidUnload
 {
     _mainView = nil;
+    [self setToolbar:nil];
+    [self setLayoutBarButton:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
@@ -174,5 +181,18 @@
     [imageView startDownload];
     
     return imageView;
+}
+- (IBAction)toggleLayout:(id)sender
+{
+    if (_mainView.layoutMode == LTTextViewLayoutModeNormal) {
+        _mainView.layoutMode = LTTextViewLayoutModeReverse;
+        self.layoutBarButton.title = @"Reverse";
+    } else if (_mainView.layoutMode == LTTextViewLayoutModeReverse) {
+        _mainView.layoutMode = LTTextViewLayoutModeVertical;
+        self.layoutBarButton.title = @"Vertical";
+    } else if (_mainView.layoutMode == LTTextViewLayoutModeVertical) {
+        _mainView.layoutMode = LTTextViewLayoutModeNormal;
+        self.layoutBarButton.title = @"Layout";
+    }
 }
 @end

@@ -14,5 +14,8 @@
 @property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
 
 - (IBAction)showInfo:(id)sender;
+@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *layoutBarButton;
+- (IBAction)toggleLayout:(id)sender;
 
 @end

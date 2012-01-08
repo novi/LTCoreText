@@ -9,6 +9,14 @@
 #import "LTCoreText.h"
 #import <CoreText/CoreText.h>
 
+typedef NSUInteger LTTextViewLayoutMode;
+
+enum {
+    LTTextViewLayoutModeNormal = 0,
+    LTTextViewLayoutModeReverse = 1,
+    LTTextViewLayoutModeVertical = 2,
+};
+
 
 @class LTTextView;
 @protocol LTTextViewDelegate <NSObject>
@@ -26,6 +34,7 @@
 
 @property (nonatomic, assign) id<LTTextViewDelegate> textViewDelegate;
 @property (nonatomic, retain, readonly) NSArray* layouters;
+@property (nonatomic) LTTextViewLayoutMode layoutMode;
 
 - (void)insertLayouter:(LTTextLayouter*)layouter atIndex:(NSUInteger)index;
 - (void)removeLayouterAtIndex:(NSUInteger)index;

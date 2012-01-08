@@ -8,6 +8,8 @@
 
 #import "LTCoreText.h"
 
+#define LTTextPageViewDrawPageNumDebug (1)
+
 @interface LTTextPageView : UIView
 
 - (id)initWithFrame:(CGRect)frame layouter:(LTTextLayouter*)layouter pageIndex:(NSUInteger)index;
