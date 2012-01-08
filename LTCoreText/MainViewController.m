@@ -52,7 +52,7 @@
         }
         
         //_attrString = [[NSAttributedString alloc] initWithString:_attrString.string];
-        [_attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
+        //[_attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
         //[_attrString addAttribute:(id)kCTLineBreakByWordWrapping value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
         
         _landscapeLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString
@@ -60,6 +60,8 @@
                                                                             options:nil];
         _landscapeLayouter.columnCount = 3;
         _landscapeLayouter.verticalText = YES;
+        _landscapeLayouter.contentInset = UIEdgeInsetsMake(10, 20, 30, 40);
+        //_landscapeLayouter.contentInset = UIEdgeInsetsMake(40, 30, 20, 10);
         [_landscapeLayouter layoutIfNeeded];
         
         _portraitLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString
@@ -67,6 +69,7 @@
                                                                      options:nil];
         
         _portraitLayouter.columnCount = 2;
+        _portraitLayouter.contentInset = UIEdgeInsetsMake(10, 20, 30, 40);
         [_portraitLayouter layoutIfNeeded];
         
         NSLog(@"%@", [_portraitLayouter valueForKey:@"attachments"]);
