@@ -114,7 +114,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 
 -(void)downloadImageWithURL:(NSURL *)url imageBounds:(CGSize)bounds options:(NSDictionary *)options completion:(LTImageDownloadCallback)comp
 {
-	NSLog(@"%s, %@", __func__, [url absoluteString]);
+	//NSLog(@"%s, %@", __func__, [url absoluteString]);
 	
 	dispatch_async(_queue, ^(void) {
 		NSString* cacheKey = [NSString stringWithFormat:@"%@", [url absoluteString]];

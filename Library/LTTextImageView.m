@@ -21,6 +21,10 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
     if (self) {
 		self.userInteractionEnabled = YES;
         self.contentMode = UIViewContentModeScaleAspectFit;
+
+#if LTTextViewBackgroundColorDebug  
+        self.backgroundColor = [UIColor greenColor];
+#endif
 		
 		UIView* overlayView = [[UIView alloc] initWithFrame:frame];
 		overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
@@ -93,30 +97,30 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
                                                      options:options
                                                   completion:
      ^(UIImage *image, NSError *error) {
-         NSLog(@"image downloaded: req:%@, cur:%@", currentURL, self.imageURL);
+         //NSLog(@"image downloaded: req:%@, cur:%@", currentURL, self.imageURL);
          if ([self.imageURL isEqual:currentURL]) {
-                 if (image) {
-                     self.image = image;
+             if (image) {
+                 self.image = image;
                  [UIView animateWithDuration:0.5
                                   animations:^{ 
                                       self.alpha = 1.0;
                                   }];
-                 } else {
-                     // error
-                 }
+             } else {
+                 // error
              }
+         }
          
      }];
 }
 
 
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect
+ {
+ // Drawing code
+ }
+ */
 
 @end

@@ -319,6 +319,74 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 }
 
 
+- (void)_lt_frameDraw:(CGContextRef)context pathBBox:(CGRect)pathBBox lines:(CFArrayRef)lines lineOrigin:(CGPoint *)lineOrigin
+{
+    LTTextLogInfo(@"using %s", __FUNCTION__);
+    
+    for (CFIndex linei = 0; linei < CFArrayGetCount(lines); linei++) {
+        CGContextSaveGState(context);
+        CGContextSetTextMatrix(context, CGAffineTransformIdentity);
+        CGContextSetTextPosition(context, 0, 0);
+        CGContextTranslateCTM(context, lineOrigin[linei].x, lineOrigin[linei].y);
+        
+        CTLineRef line = CFArrayGetValueAtIndex(lines, linei);
+        CGRect lineBounds = CTLineGetImageBounds(line, context);
+        if (useHyphenation) {
+            CFRange cfStringRange = CTLineGetStringRange(line);
+            NSRange stringRange = NSMakeRange(cfStringRange.location, cfStringRange.length);
+            static const unichar softHypen = 0x00AD;
+            unichar lastChar = [_attributedString.string characterAtIndex:stringRange.location + stringRange.length-1];
+            
+            if(softHypen == lastChar) {
+                NSMutableAttributedString* lineAttrString = [[_attributedString attributedSubstringFromRange:stringRange] mutableCopy];
+                NSRange replaceRange = NSMakeRange(stringRange.length-1, 1);
+                [lineAttrString replaceCharactersInRange:replaceRange withString:@"-"];
+                
+                CTLineRef hyphenLine = CTLineCreateWithAttributedString((CFAttributedStringRef)lineAttrString);
+                CTLineRef justifiedLine = CTLineCreateJustifiedLine(hyphenLine, 1.0, pathBBox.size.width); 
+                CTLineDraw(justifiedLine, context);
+                CFRelease(justifiedLine);
+                //CTLineDraw(hyphenLine, context);
+                CFRelease(hyphenLine);
+                [lineAttrString release];
+            } else {
+                if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
+                    CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
+                    CTLineDraw(justLine, context);
+                    CFRelease(justLine);
+                } else {
+                    CTLineDraw(line, context);
+                }
+            }
+        } else {
+            if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
+                CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
+                CTLineDraw(justLine, context);
+                CFRelease(justLine);
+            } else {
+                CTLineDraw(line, context);
+            }
+        }
+        
+        
+        
+        CGContextRestoreGState(context);
+    }
+}
+
+- (CGAffineTransform)_transformForCurrentTextProgression
+{
+    if (!_verticalText) {
+        return CGAffineTransformIdentity;
+    }
+    
+    CGAffineTransform t = CGAffineTransformIdentity;
+    t = CGAffineTransformRotate(t, -M_PI_2);
+    t = CGAffineTransformTranslate(t, -_frameSize.height, 0);
+    
+    return t;
+}
+
 -(void)drawInContext:(CGContextRef)context atPage:(NSUInteger)page
 {
 	if (_needFrameLayout) {
@@ -329,20 +397,20 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		return;
 	}
 	
-	//CGContextTranslateCTM(context, 0, _contentInset.bottom);
 	
 	NSArray* frames = [_frames objectAtIndex:page];
-	//for (id obj in [_frames objectAtIndex:page]) {
+
+#if LTTextViewBackgroundColorDebug
     for (NSUInteger i = 0; i < [frames count]; i++) {
-		
         CGContextSaveGState(context);
         LTTextFrame* textFrame = [frames objectAtIndex:i];
         CGRect pathBBox = textFrame.contentFrame;
-        CGContextTranslateCTM(context, pathBBox.origin.x, pathBBox.origin.y);
+        CGContextTranslateCTM(context, pathBBox.origin.x, _frameSize.height-pathBBox.origin.y-pathBBox.size.height);
         CGContextSetFillColorWithColor(context, [[UIColor yellowColor] CGColor]);
         UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
         CGContextRestoreGState(context);
     }
+#endif
     
 	for (NSUInteger i = 0; i < [frames count]; i++) {
 		
@@ -360,74 +428,14 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
             CGContextTranslateCTM(context, -_frameSize.height, 0);
             CGContextTranslateCTM(context, pathBBox.origin.y, pathBBox.origin.x);
         } else {
-            CGContextTranslateCTM(context, pathBBox.origin.x, pathBBox.origin.y);
+            CGContextTranslateCTM(context, pathBBox.origin.x, _frameSize.height-pathBBox.origin.y-pathBBox.size.height);
         }
 		
-		{
-			//CGContextSetFillColorWithColor(context, [[UIColor yellowColor] CGColor]);
-			//[[UIColor colorWithWhite:0.9+0.1 alpha:1.0] set];
-			//UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
-            
-			
-            //UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
-			CTFrameDraw(frame, context);
-            
-            //break;
-            
-			/*for (CFIndex linei = 0; linei < CFArrayGetCount(lines); linei++) {
-				CGContextSaveGState(context);
-				CGContextSetTextMatrix(context, CGAffineTransformIdentity);
-				CGContextSetTextPosition(context, 0, 0);
-				CGContextTranslateCTM(context, lineOrigin[linei].x, lineOrigin[linei].y);
-				
-				CTLineRef line = CFArrayGetValueAtIndex(lines, linei);
-				CGRect lineBounds = CTLineGetImageBounds(line, context);
-				if (useHyphenation) {
-					CFRange cfStringRange = CTLineGetStringRange(line);
-					NSRange stringRange = NSMakeRange(cfStringRange.location, cfStringRange.length);
-					static const unichar softHypen = 0x00AD;
-					unichar lastChar = [_attributedString.string characterAtIndex:stringRange.location + stringRange.length-1];
-					
-					if(softHypen == lastChar) {
-						NSMutableAttributedString* lineAttrString = [[_attributedString attributedSubstringFromRange:stringRange] mutableCopy];
-						NSRange replaceRange = NSMakeRange(stringRange.length-1, 1);
-						[lineAttrString replaceCharactersInRange:replaceRange withString:@"-"];
-						
-						CTLineRef hyphenLine = CTLineCreateWithAttributedString((CFAttributedStringRef)lineAttrString);
-						CTLineRef justifiedLine = CTLineCreateJustifiedLine(hyphenLine, 1.0, pathBBox.size.width); 
-						CTLineDraw(justifiedLine, context);
-						CFRelease(justifiedLine);
-						//CTLineDraw(hyphenLine, context);
-						CFRelease(hyphenLine);
-						[lineAttrString release];
-					} else {
-						if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
-							CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
-							CTLineDraw(justLine, context);
-							CFRelease(justLine);
-						} else {
-							CTLineDraw(line, context);
-						}
-					}
-				} else {
-					if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
-						CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
-						CTLineDraw(justLine, context);
-						CFRelease(justLine);
-					} else {
-						CTLineDraw(line, context);
-					}
-				}
-             
-             
-				
-				CGContextRestoreGState(context);
-			}
-             
-             */
-             
-             
-		}
+        if (useHyphenation || justifyThreshold != 1.0) {
+            [self _lt_frameDraw:context pathBBox:pathBBox lines:lines lineOrigin:lineOrigin];
+        } else {
+            CTFrameDraw(frame, context);
+        }
 		
 		/*CGRect imageFrame = [self imageFrameAtPageIndex:page column:i];
          NSArray* attachments = [[_attachments objectAtIndex:page] objectAtIndex:i];
@@ -455,6 +463,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 {
 	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
 	CGFloat height = contentFrame.size.height;
+    
+    CGAffineTransform t = [self _transformForCurrentTextProgression];
 	
 	CFArrayRef lines = CTFrameGetLines(frame);
 	for (CFIndex i = 0; i < CFArrayGetCount(lines); i++) {
@@ -483,16 +493,33 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 
                  CGPoint p;
                  CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &p);
+                //p = CGPointApplyAffineTransform(p, t);
                  float ascent;
                  CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
-                 p.y += ascent;
-                 NSLog(@"line:%p count: %ld, ascent:%f, %@", line, CTLineGetStringRange(line).length, ascent, NSStringFromCGSize(adv[0]) );
+                if (_verticalText) {
+                    //p.y += ascent;
+                    p = CGPointApplyAffineTransform(p, t);
+                } else {
+                    p.y += ascent;
+                }
+                
+                 NSLog(@"%d: line:%p count: %ld, ascent:%f, %@, p:%@", _verticalText, line, CTLineGetStringRange(line).length, ascent, NSStringFromCGSize(adv[0]), NSStringFromCGPoint(p) );
                  //NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
+                
+                CGRect attachFrame;
+                if (_verticalText) {
+                    attachFrame = CGRectMake(p.x, _frameSize.height - p.y, ascent, adv[0].width);
+                } else {
+                    attachFrame = CGRectMake(p.x, (height - p.y), adv[0].width, ascent);
+                }
+                
+                //attachFrame = CGRectApplyAffineTransform(attachFrame, t);
+                
                  NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(id)attr
                  ,@"attributes"
                  ,[NSValue valueWithCGPoint:p]
                  ,@"position"
-                 ,[NSValue valueWithCGRect:CGRectMake(p.x, (height - p.y) + _contentInset.bottom, adv[0].width, ascent) ]
+                 ,[NSValue valueWithCGRect: attachFrame]
                  ,@"frame",nil];
                  [dst addObject:dict];
                 

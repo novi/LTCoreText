@@ -20,3 +20,8 @@
 #define LTTextRelease(obj) {if (obj) { [(obj) release]; obj = nil; } }
 #define LTTextCFRelease(obj) { if (obj) { CFRelease(obj); } }
 #define LTTextMethodDebugLog() {NSLog(@"%s,%@", __func__, self);}
+
+
+#define LTTextViewBackgroundColorDebug (0)
+
+

@@ -44,8 +44,8 @@
 		self.autoresizesSubviews = NO;
 		_layouter = [layouter retain];
 		_index = index;
-		self.backgroundColor = _layouter.backgroundColor;
-		self.opaque = NO;
+		//self.backgroundColor = _layouter.backgroundColor;
+		self.opaque = YES;
 		_isNeedShowAttachments = YES;
 		//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_imageDownloaded:) name:@"DTLazyImageViewDidFinishLoading" object:nil];
 		
@@ -137,7 +137,7 @@
         NSArray* attrs = [_layouter attachmentsAtPageIndex:_index column:i];
         for (NSDictionary* dict in attrs) {
             CGRect frame = [[dict objectForKey:@"frame"] CGRectValue];
-            frame = CGRectOffset(frame, colFrame.origin.x, 0);
+            frame = CGRectOffset(frame, colFrame.origin.x, colFrame.origin.y);
             UIView* view = [textView.textViewDelegate textview:textView viewForRunDictionary:[dict objectForKey:@"attributes"] ];
             view.autoresizesSubviews = YES;
             view.autoresizingMask = UIViewAutoresizingNone;
@@ -237,6 +237,9 @@
     // Drawing code
     
 
+    // Fill with background color
+    CGContextSetFillColorWithColor(context, [_layouter.backgroundColor CGColor]);
+    CGContextFillRect(context, self.bounds);
     
     LTTextView* textView = [self _textView];
     if ([textView respondsToSelector:@selector(textview:willDrawPageIndex:inContext:)]) {

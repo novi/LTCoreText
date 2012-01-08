@@ -9,7 +9,6 @@
 #import "LTCoreText.h"
 #import <UIKit/UIKit.h>
 
-@class DTTextAttachment;
 @interface LTTextImageView : UIImageView
 
 @property (nonatomic, retain) NSURL* imageURL;
