@@ -8,6 +8,29 @@
 
 #import "LTTextLayouter.h"
 
+
+@interface LTTextFrame : NSObject
+{
+    
+}
+
+@property (nonatomic, retain) id frame;
+@property (nonatomic) CGRect contentFrame;
+
+
+@end
+
+@implementation LTTextFrame
+
+@synthesize frame, contentFrame;
+- (void)dealloc
+{
+    self.frame = nil;
+    [super dealloc];
+}
+
+@end
+
 CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 
@@ -26,6 +49,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	UIEdgeInsets _contentInset;
 	CGFloat _columnSpace;
 	CGColorRef _backgroundColor;
+    BOOL _verticalText;
 }
 
 - (void)_createAttachmentsArray;
@@ -45,6 +69,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 @synthesize justifyThreshold;
 @synthesize useHyphenation;
 @synthesize columnCount = _columnCount;
+@synthesize verticalText = _verticalText;
 
 
 #pragma mark -
@@ -96,7 +121,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
-	CTFrameRef frame = (CTFrameRef)[[_frames objectAtIndex:index] objectAtIndex:col];
+    LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
+	CTFrameRef frame = (CTFrameRef)textFrame.frame;
 	CFRange range = CTFrameGetVisibleStringRange(frame);
 	
 	return NSMakeRange(range.location, range.length);
@@ -136,6 +162,13 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 {
     CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
     
+    if (_verticalText) {
+        CGFloat height = contentFrame.size.height;
+        height -= _columnSpace*(_columnCount-1);
+        height = floorf(height/(CGFloat)_columnCount);
+        return CGSizeMake(contentFrame.size.width, height);
+    }
+    
     CGFloat width = contentFrame.size.width;
     width -= _columnSpace*(_columnCount-1);
     width = floorf(width/(CGFloat)_columnCount);
@@ -145,6 +178,15 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 - (CGRect)_columnFrameWithColumn:(NSUInteger)col
 {
 	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+    
+    if (_verticalText) {
+        CGFloat height = [self _columnSize].height;
+        
+        contentFrame.size.height = height;
+        contentFrame = CGRectOffset(contentFrame, 0 , height*col + _columnSpace*col);
+        return contentFrame;
+    }
+    
     CGFloat width = [self _columnSize].width;
     
     contentFrame.size.width = width;
@@ -159,7 +201,13 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	_needFrameLayout = NO;
 	LTTextRelease(_frames);
 	_frames = [[NSMutableArray alloc] init];
-	
+    
+    CFMutableDictionaryRef frameAttr = CFDictionaryCreateMutable(NULL, 2, NULL, NULL);
+    
+	if (_verticalText) {
+        // Don't use, this option has critical bug
+        //CFDictionarySetValue(frameAttr, kCTFrameProgressionAttributeName, (CFTypeRef)[NSNumber numberWithInt:kCTFrameProgressionRightToLeft]);
+    }
 	
 	CFIndex length = CFAttributedStringGetLength((CFAttributedStringRef)_attributedString);
 	CFRange strRange = CFRangeMake(0, 0);
@@ -171,10 +219,20 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         
         NSLog(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
         
-        CGPathRef path =  [[UIBezierPath bezierPathWithRect:contentFrame] CGPath];
-		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, strRange, path, NULL);
+        CGPathRef path;
+        if (_verticalText) {
+            path = [[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, contentFrame.size.height, contentFrame.size.width)] CGPath];
+        } else {
+            path = [[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, contentFrame.size.width, contentFrame.size.height)] CGPath];
+        }
+		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, strRange, path, frameAttr);
+        
+        LTTextFrame* textFrame = [[LTTextFrame alloc] init];
+        textFrame.frame = (id)frame;
+        textFrame.contentFrame = contentFrame;
 		
-        [currentFrames addObject:(id)frame];
+        [currentFrames addObject:textFrame];
+        [textFrame release];
 		
         // current frame(columns) full, change to next page (and col=0)
         if ([currentFrames count] == _columnCount) {
@@ -189,11 +247,16 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		//NSLog(@"frame %p, %@, image %d", frame, NSStringFromCGRect(CGPathGetBoundingBox(CTFrameGetPath(frame))), [[self _attachmentsWithCTFrame:frame] count]);
 		
 		CFRange visibleRange = CTFrameGetVisibleStringRange(frame);
+        CFRelease(frame);
+        frame = NULL;
+        
 		if (visibleRange.length+visibleRange.location >= length) {
 			break;
 		}
 		strRange.location = visibleRange.location+visibleRange.length;
 	}
+    
+    CFRelease(frameAttr);
 	
 	if ([currentFrames count]) {
 		[_frames addObject:currentFrames];
@@ -242,6 +305,12 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     _needFrameLayout = YES;
 }
 
+-(void)setVerticalText:(BOOL)verticalText
+{
+    _verticalText = verticalText;
+    _needFrameLayout = YES;
+}
+
 -(void)layoutIfNeeded
 {
 	if (_needFrameLayout) {
@@ -264,23 +333,48 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	
 	NSArray* frames = [_frames objectAtIndex:page];
 	//for (id obj in [_frames objectAtIndex:page]) {
+    for (NSUInteger i = 0; i < [frames count]; i++) {
+		
+        CGContextSaveGState(context);
+        LTTextFrame* textFrame = [frames objectAtIndex:i];
+        CGRect pathBBox = textFrame.contentFrame;
+        CGContextTranslateCTM(context, pathBBox.origin.x, pathBBox.origin.y);
+        CGContextSetFillColorWithColor(context, [[UIColor yellowColor] CGColor]);
+        UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
+        CGContextRestoreGState(context);
+    }
+    
 	for (NSUInteger i = 0; i < [frames count]; i++) {
 		
-		CTFrameRef frame = (CTFrameRef)[frames objectAtIndex:i];
+        LTTextFrame* textFrame = [frames objectAtIndex:i];
+		CTFrameRef frame = (CTFrameRef)textFrame.frame;
 		CFArrayRef lines = CTFrameGetLines(frame);
 		CGPoint* lineOrigin = malloc(CFArrayGetCount(lines)*sizeof(CGPoint));
 		CTFrameGetLineOrigins(frame, CFRangeMake(0, CFArrayGetCount(lines)), lineOrigin);
-		CGRect pathBBox = CGPathGetBoundingBox(CTFrameGetPath(frame));
+		CGRect pathBBox = textFrame.contentFrame;
+        
 		CGContextSaveGState(context);
-		CGContextTranslateCTM(context, pathBBox.origin.x, pathBBox.origin.y);
+        
+        if (_verticalText) {
+            CGContextRotateCTM(context, -M_PI_2);
+            CGContextTranslateCTM(context, -_frameSize.height, 0);
+            CGContextTranslateCTM(context, pathBBox.origin.y, pathBBox.origin.x);
+        } else {
+            CGContextTranslateCTM(context, pathBBox.origin.x, pathBBox.origin.y);
+        }
 		
 		{
-			CGContextSetFillColorWithColor(context, _backgroundColor);
+			//CGContextSetFillColorWithColor(context, [[UIColor yellowColor] CGColor]);
 			//[[UIColor colorWithWhite:0.9+0.1 alpha:1.0] set];
-			UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
+			//UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
+            
 			
-			//CTFrameDraw(frame, context);
-			for (CFIndex linei = 0; linei < CFArrayGetCount(lines); linei++) {
+            //UIRectFill(CGRectMake(0, 0, pathBBox.size.width, pathBBox.size.height));
+			CTFrameDraw(frame, context);
+            
+            //break;
+            
+			/*for (CFIndex linei = 0; linei < CFArrayGetCount(lines); linei++) {
 				CGContextSaveGState(context);
 				CGContextSetTextMatrix(context, CGAffineTransformIdentity);
 				CGContextSetTextPosition(context, 0, 0);
@@ -324,9 +418,15 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 						CTLineDraw(line, context);
 					}
 				}
+             
+             
 				
 				CGContextRestoreGState(context);
 			}
+             
+             */
+             
+             
 		}
 		
 		/*CGRect imageFrame = [self imageFrameAtPageIndex:page column:i];
@@ -410,9 +510,9 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	for (NSArray* frames in _frames) {
 		NSMutableArray* dstarrayPage = [NSMutableArray array];
 		[_attachments addObject:dstarrayPage];
-		for (id frame in frames) {
+		for (LTTextFrame* frame in frames) {
 			NSMutableArray* dstArrayFrame = [NSMutableArray array];
-			[self _storeFrameOfAttachment:(CTFrameRef)frame to:dstArrayFrame];
+			[self _storeFrameOfAttachment:(CTFrameRef)frame.frame to:dstArrayFrame];
 			[dstarrayPage addObject:dstArrayFrame];
 		}
 	}

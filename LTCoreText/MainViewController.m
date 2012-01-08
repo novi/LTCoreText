@@ -51,10 +51,15 @@
                                                                       documentAttributes:nil]];
         }
         
+        //_attrString = [[NSAttributedString alloc] initWithString:_attrString.string];
+        [_attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
+        //[_attrString addAttribute:(id)kCTLineBreakByWordWrapping value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
+        
         _landscapeLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString
                                                                           frameSize:CGSizeMake(1024, 768-20)
                                                                             options:nil];
         _landscapeLayouter.columnCount = 3;
+        _landscapeLayouter.verticalText = YES;
         [_landscapeLayouter layoutIfNeeded];
         
         _portraitLayouter = [[LTTextLayouter alloc] initWithAttributedString:_attrString

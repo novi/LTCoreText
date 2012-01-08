@@ -19,6 +19,7 @@
 @property (nonatomic, readonly) NSUInteger pageCount;
 
 @property (nonatomic) NSUInteger columnCount;
+@property (nonatomic) BOOL verticalText;
 @property (nonatomic, retain) UIColor* backgroundColor;
 @property (nonatomic) UIEdgeInsets contentInset;
 @property (nonatomic) CGFloat columnSpace;
