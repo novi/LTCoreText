@@ -390,7 +390,7 @@
 
 - (IBAction)pageSliderChanged:(id)sender 
 {
-    self.scrollIndexField.text = [NSString stringWithFormat:@"%d", (int)self.pageSlider.value + 1];
+    self.scrollIndexField.text = [NSString stringWithFormat:@"%d", (int)self.pageSlider.value];
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
         [_landscapeView scrollToPageIndex:self.pageSlider.value animated:NO];
     } else {
