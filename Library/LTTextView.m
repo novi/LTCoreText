@@ -23,6 +23,7 @@
 		NSUInteger strIndex;
 	} _currentState;
 	NSUInteger _currentScrollIndex;
+    NSUInteger _scrollIndexChanged;
 }
 
 - (CGPoint)_contentOffsetForIndex:(NSUInteger)index;
@@ -228,7 +229,7 @@
 	
 	[self _recreateTextviews];
 	
-	self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex], 0);
+	self.contentOffset = [self _contentOffsetForIndex:[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
 	self.scrollEnabled = YES;
 }
 
@@ -253,7 +254,7 @@
 	
 	[self _recreateTextviews];
 	
-	self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex], 0);
+	self.contentOffset = [self _contentOffsetForIndex:[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
 	self.scrollEnabled = YES;
 }
 
@@ -524,9 +525,7 @@
     LTTextPageView* pageView = (id)[self _hasViewWithScrollIndex:_currentScrollIndex];
     [pageView showAttachmentsIfNeeded];
     
-    if ([self.textViewDelegate respondsToSelector:@selector(textviewDidChangeScrollIndex:)]) {
-        [self.textViewDelegate textviewDidChangeScrollIndex:self];
-    }
+    
 }
 
 -(void)layoutSubviews
@@ -539,30 +538,39 @@
 	}
 	
 	if ( ([self _currentScrollIndex] != _currentScrollIndex) || framesizeChanged) {
-        
-		
-	}
-    
-    if (framesizeChanged) {
         [self _layoutPages];
-    }
+	}
 	
 	
 }
 
 #pragma mark - Scroll View Delegate
 
+- (void)_notifyScrollIndexChangingIfChanged
+{
+    if (_scrollIndexChanged != _currentScrollIndex) {
+        if ([self.textViewDelegate respondsToSelector:@selector(textviewDidChangeScrollIndex:)]) {
+            [self.textViewDelegate textviewDidChangeScrollIndex:self];
+        }
+    }
+}
+
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _scrollIndexChanged = _currentScrollIndex;
+}
+
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
 	//_currentPageIndex = [self _currentIndex];
     if (!decelerate) {
-        [self _layoutPages];
+        [self _notifyScrollIndexChangingIfChanged];
     }
 }
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [self _layoutPages];
+    [self _notifyScrollIndexChangingIfChanged];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
