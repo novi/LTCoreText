@@ -96,6 +96,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		self.justifyThreshold = 1.0;
 		self.useHyphenation = NO;
 		
+        _columnCount = 1;
 		
     }
     return self;
@@ -142,7 +143,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     for (NSUInteger pi = 0; pi < _frames.count; pi++) {
         NSArray* cols = [_frames objectAtIndex:pi];
         for (NSUInteger ci = 0; ci < cols.count; ci++) {
-            CTFrameRef frame = (CTFrameRef)[cols objectAtIndex:ci];
+            LTTextFrame* textFrame = [cols objectAtIndex:ci];
+            CTFrameRef frame = (CTFrameRef)textFrame.frame;
             count += CTFrameGetVisibleStringRange((CTFrameRef)frame).length;
             if (count > index) {
                 if (col) {
@@ -295,12 +297,18 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 -(void)setColumnCount:(NSUInteger)columnCount
 {
+    if (columnCount == 0) {
+        columnCount = 1;
+    }
     _columnCount = columnCount;
     _needFrameLayout = YES;
 }
 
 -(void)setColumnSpace:(CGFloat)columnSpace
 {
+    if (columnSpace < 0) {
+        columnSpace = 0;
+    }
     _columnSpace = columnSpace;
     _needFrameLayout = YES;
 }

@@ -50,7 +50,7 @@
 		//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_imageDownloaded:) name:@"DTLazyImageViewDidFinishLoading" object:nil];
 		
 		UITapGestureRecognizer* gr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_viewTapped:)];
-		[self addGestureRecognizer:gr];
+		//[self addGestureRecognizer:gr];
 		[gr release];
     }
     return self;
@@ -256,6 +256,7 @@
 	[_layouter drawInContext:context atPage:_index];
     
 #if LTTextPageViewDrawPageNumDebug
+    CGContextSetFillColorWithColor(context, [[UIColor blackColor] CGColor]);
 	CGContextTranslateCTM(context, 0, self.bounds.size.height);
     CGContextScaleCTM(context, 1.0, -1.0);
     [[NSString stringWithFormat:@"%d", _index] drawAtPoint:CGPointMake(0, 0) withFont:[UIFont boldSystemFontOfSize:28.0f]];
