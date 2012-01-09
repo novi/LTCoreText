@@ -16,7 +16,6 @@
 		520EDDFB149AFD5900DE253D /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDDFA149AFD5900DE253D /* MainViewController.m */; };
 		520EDDFE149AFD5900DE253D /* FlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDDFD149AFD5900DE253D /* FlipsideViewController.m */; };
 		520EDE01149AFD5900DE253D /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 520EDDFF149AFD5900DE253D /* MainViewController.xib */; };
-		520EDE04149AFD5900DE253D /* FlipsideViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 520EDE02149AFD5900DE253D /* FlipsideViewController.xib */; };
 		520EDE0C149AFD5A00DE253D /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDE0B149AFD5A00DE253D /* SenTestingKit.framework */; };
 		520EDE0D149AFD5A00DE253D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDDE7149AFD5900DE253D /* UIKit.framework */; };
 		520EDE0E149AFD5A00DE253D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDDE9149AFD5900DE253D /* Foundation.framework */; };
@@ -63,6 +62,11 @@
 		520EDEA5149B431200DE253D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA4149B431200DE253D /* ImageIO.framework */; };
 		520EDEA7149B453F00DE253D /* README.html in Resources */ = {isa = PBXBuildFile; fileRef = 520EDEA6149B453F00DE253D /* README.html */; };
 		520EDEAA149B549C00DE253D /* LTTextAttachmentRunDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */; };
+		52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */ = {isa = PBXBuildFile; fileRef = 52D7070B14BA72130085C1FA /* 1935_19925.html */; };
+		52D7071914BA80460085C1FA /* DownloadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D7071714BA80450085C1FA /* DownloadViewController.m */; };
+		52D7071A14BA80460085C1FA /* DownloadViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 52D7071814BA80460085C1FA /* DownloadViewController.xib */; };
+		52D7072314BA8B220085C1FA /* OptionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D7072114BA8B210085C1FA /* OptionViewController.m */; };
+		52D7072414BA8B220085C1FA /* OptionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 52D7072214BA8B210085C1FA /* OptionViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,7 +95,6 @@
 		520EDDFC149AFD5900DE253D /* FlipsideViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlipsideViewController.h; sourceTree = "<group>"; };
 		520EDDFD149AFD5900DE253D /* FlipsideViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FlipsideViewController.m; sourceTree = "<group>"; };
 		520EDE00149AFD5900DE253D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainViewController.xib; sourceTree = "<group>"; };
-		520EDE03149AFD5900DE253D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/FlipsideViewController.xib; sourceTree = "<group>"; };
 		520EDE0A149AFD5A00DE253D /* LTCoreTextTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LTCoreTextTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		520EDE0B149AFD5A00DE253D /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		520EDE13149AFD5A00DE253D /* LTCoreTextTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LTCoreTextTests-Info.plist"; sourceTree = "<group>"; };
@@ -179,6 +182,13 @@
 		520EDEA6149B453F00DE253D /* README.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = README.html; path = ../../../../../Dev/ExtProj/DTCoreText/Demo/Resources/README.html; sourceTree = "<group>"; };
 		520EDEA8149B549A00DE253D /* LTTextAttachmentRunDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTTextAttachmentRunDelegate.h; sourceTree = "<group>"; };
 		520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTTextAttachmentRunDelegate.m; sourceTree = "<group>"; };
+		52D7070B14BA72130085C1FA /* 1935_19925.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = 1935_19925.html; sourceTree = "<group>"; };
+		52D7071614BA80450085C1FA /* DownloadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadViewController.h; sourceTree = "<group>"; };
+		52D7071714BA80450085C1FA /* DownloadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadViewController.m; sourceTree = "<group>"; };
+		52D7071814BA80460085C1FA /* DownloadViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadViewController.xib; sourceTree = "<group>"; };
+		52D7072014BA8B200085C1FA /* OptionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionViewController.h; sourceTree = "<group>"; };
+		52D7072114BA8B210085C1FA /* OptionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionViewController.m; sourceTree = "<group>"; };
+		52D7072214BA8B210085C1FA /* OptionViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,7 +263,12 @@
 				520EDDFC149AFD5900DE253D /* FlipsideViewController.h */,
 				520EDDFD149AFD5900DE253D /* FlipsideViewController.m */,
 				520EDDFF149AFD5900DE253D /* MainViewController.xib */,
-				520EDE02149AFD5900DE253D /* FlipsideViewController.xib */,
+				52D7071614BA80450085C1FA /* DownloadViewController.h */,
+				52D7071714BA80450085C1FA /* DownloadViewController.m */,
+				52D7071814BA80460085C1FA /* DownloadViewController.xib */,
+				52D7072014BA8B200085C1FA /* OptionViewController.h */,
+				52D7072114BA8B210085C1FA /* OptionViewController.m */,
+				52D7072214BA8B210085C1FA /* OptionViewController.xib */,
 				520EDDEE149AFD5900DE253D /* Supporting Files */,
 			);
 			path = LTCoreText;
@@ -262,6 +277,7 @@
 		520EDDEE149AFD5900DE253D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				52D7070B14BA72130085C1FA /* 1935_19925.html */,
 				520EDEA6149B453F00DE253D /* README.html */,
 				520EDDEF149AFD5900DE253D /* LTCoreText-Info.plist */,
 				520EDDF0149AFD5900DE253D /* InfoPlist.strings */,
@@ -477,8 +493,10 @@
 			files = (
 				520EDDF2149AFD5900DE253D /* InfoPlist.strings in Resources */,
 				520EDE01149AFD5900DE253D /* MainViewController.xib in Resources */,
-				520EDE04149AFD5900DE253D /* FlipsideViewController.xib in Resources */,
 				520EDEA7149B453F00DE253D /* README.html in Resources */,
+				52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */,
+				52D7071A14BA80460085C1FA /* DownloadViewController.xib in Resources */,
+				52D7072414BA8B220085C1FA /* OptionViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -554,6 +572,8 @@
 				520EDEA0149B42F300DE253D /* UIColor+HTML.m in Sources */,
 				520EDEA1149B42F300DE253D /* UIDevice+DTVersion.m in Sources */,
 				520EDEAA149B549C00DE253D /* LTTextAttachmentRunDelegate.m in Sources */,
+				52D7071914BA80460085C1FA /* DownloadViewController.m in Sources */,
+				52D7072314BA8B220085C1FA /* OptionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,14 +610,6 @@
 				520EDE00149AFD5900DE253D /* en */,
 			);
 			name = MainViewController.xib;
-			sourceTree = "<group>";
-		};
-		520EDE02149AFD5900DE253D /* FlipsideViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				520EDE03149AFD5900DE253D /* en */,
-			);
-			name = FlipsideViewController.xib;
 			sourceTree = "<group>";
 		};
 		520EDE14149AFD5A00DE253D /* InfoPlist.strings */ = {

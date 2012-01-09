@@ -22,6 +22,19 @@
     self.mainViewController = [[MainViewController alloc] init];
     self.window.rootViewController = self.mainViewController;
     [self.window makeKeyAndVisible];
+    
+    
+    // copy resource files to documents
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString* documentsDirectory = [paths objectAtIndex:0];
+    NSFileManager* fm = [NSFileManager defaultManager];
+    
+    for (NSString* filename in [fm contentsOfDirectoryAtPath:[[NSBundle mainBundle] resourcePath] error:nil]) {
+        NSString* filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filename];
+        [fm copyItemAtPath:filePath toPath:[documentsDirectory stringByAppendingPathComponent:filename] error:nil];
+    }
+    
+    
     return YES;
 }
 

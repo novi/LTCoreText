@@ -11,13 +11,18 @@
 @class FlipsideViewController;
 
 @protocol FlipsideViewControllerDelegate
+- (void)flipsideViewController:(FlipsideViewController*)controller didSelectFileWithPath:(NSString*)path;
 - (void)flipsideViewControllerDidFinish:(FlipsideViewController *)controller;
 @end
 
-@interface FlipsideViewController : UIViewController
+@interface FlipsideViewController : UITableViewController
+{
+	NSArray* _files;
+}
 
-@property (weak, nonatomic) IBOutlet id <FlipsideViewControllerDelegate> delegate;
+@property ( nonatomic, assign) IBOutlet id <FlipsideViewControllerDelegate> delegate;
 
+- (void)_refreshList;
 - (IBAction)done:(id)sender;
 
 @end
