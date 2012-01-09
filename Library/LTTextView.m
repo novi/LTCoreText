@@ -294,12 +294,12 @@
     
 	NSInteger pageIndex = 0;
 	if (_layoutMode == LTTextViewLayoutModeNormal) {
-        pageIndex = floorf(self.contentOffset.x/pageWidth);
+        pageIndex = floor((self.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
     } else if (_layoutMode == LTTextViewLayoutModeReverse) {
-        pageIndex = floorf(self.contentOffset.x/pageWidth);
+        pageIndex = floor((self.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
         pageIndex = _pageCount - 1 - pageIndex;
     } else if (_layoutMode == LTTextViewLayoutModeVertical) {
-        pageIndex = floorf(self.contentOffset.y/pageHeight);
+        pageIndex = floor((self.contentOffset.y - pageHeight / 2) / pageHeight) + 1;
     }
 	
 	return pageIndex;
