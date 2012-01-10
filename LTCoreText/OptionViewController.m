@@ -8,6 +8,11 @@
 
 #import "OptionViewController.h"
 
+
+@interface UISlider (UISliderPrivate)
+-(void)setShowValue:(BOOL)value;
+@end
+
 @implementation OptionViewController
 @synthesize pColVText;
 @synthesize pColVLayout;
@@ -110,5 +115,21 @@
 {
     [[NSUserDefaults standardUserDefaults] setBool:sender.on forKey:@"pColVLayout"];
     [self _updateUI];
+}
+
+- (IBAction)lJustifyChanged:(UISlider*)sender {
+    [sender setShowValue:YES];
+    if (sender.value >= 0.98) {
+        sender.value = 1.0;
+    }
+    [[NSUserDefaults standardUserDefaults] setFloat:sender.value forKey:@"lJustify"];
+}
+
+- (IBAction)pJustifyChanged:(UISlider*)sender {
+    [sender setShowValue:YES];
+    if (sender.value >= 0.98) {
+        sender.value = 1.0;
+    }
+    [[NSUserDefaults standardUserDefaults] setFloat:sender.value forKey:@"pJustify"];
 }
 @end

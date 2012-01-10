@@ -315,6 +315,7 @@
         
         NSMutableDictionary* options = [NSMutableDictionary dictionaryWithCapacity:1];
         [options setObject:[NSURL fileURLWithPath:[path stringByDeletingLastPathComponent]] forKey:NSBaseURLDocumentOption];
+        [options setObject:[NSNumber numberWithBool:NO] forKey:DTDefaultLinkDecoration];
         
         NSMutableAttributedString* attrString = [[NSMutableAttributedString alloc] init];
         
@@ -334,7 +335,7 @@
         landscapeLayouter.verticalText = [defaults boolForKey:@"lColVLayout"];
         landscapeLayouter.contentInset = UIEdgeInsetsMake(100, 80, 50, 90);
         landscapeLayouter.columnSpace = 40;
-        landscapeLayouter.justifyThreshold = 0.8;
+        landscapeLayouter.justifyThreshold = [defaults floatForKey:@"lJustify"];
         //_landscapeLayouter.contentInset = UIEdgeInsetsMake(40, 30, 20, 10);
         [landscapeLayouter layoutIfNeeded];
         
@@ -348,7 +349,7 @@
         portraitLayouter.columnCount = [defaults integerForKey:@"pCol"];
         portraitLayouter.verticalText = [defaults boolForKey:@"pColVLayout"];
         portraitLayouter.contentInset = UIEdgeInsetsMake(120, 100, 50, 40);
-        portraitLayouter.justifyThreshold = 0.8;
+        portraitLayouter.justifyThreshold = [defaults floatForKey:@"pJustify"];
         portraitLayouter.columnSpace = 40;
         [portraitLayouter layoutIfNeeded]; 
         
@@ -396,17 +397,17 @@
 {
     self.scrollIndexField.text = [NSString stringWithFormat:@"%d", (int)self.pageSlider.value];
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
-        [_landscapeView scrollToPageIndex:self.pageSlider.value animated:NO];
+        [_landscapeView scrollToScrollIndex:self.pageSlider.value animated:NO];
     } else {
-        [_portraitView scrollToPageIndex:self.pageSlider.value animated:NO];
+        [_portraitView scrollToScrollIndex:self.pageSlider.value animated:NO];
     }
 }
 - (IBAction)scrollIndexChanged:(id)sender
 {
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
-        [_landscapeView scrollToPageIndex:[self.scrollIndexField.text integerValue] animated:YES];
+        [_landscapeView scrollToScrollIndex:[self.scrollIndexField.text integerValue] animated:YES];
     } else {
-        [_portraitView scrollToPageIndex:[self.scrollIndexField.text integerValue] animated:YES];
+        [_portraitView scrollToScrollIndex:[self.scrollIndexField.text integerValue] animated:YES];
     }
 }
 @end

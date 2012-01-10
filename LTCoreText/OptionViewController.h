@@ -23,5 +23,7 @@
 @property (weak, nonatomic) IBOutlet UISwitch *pColVLayout;
 - (IBAction)pColVTextChanged:(id)sender;
 - (IBAction)pColVLayoutChanged:(id)sender;
+- (IBAction)lJustifyChanged:(id)sender;
+- (IBAction)pJustifyChanged:(id)sender;
 
 @end
