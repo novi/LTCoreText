@@ -319,6 +319,14 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     _needFrameLayout = YES;
 }
 
+-(void)setJustifyThreshold:(float)aJustifyThreshold
+{
+    if (aJustifyThreshold < 0.1 || aJustifyThreshold > 1.0) {
+        aJustifyThreshold = 1.0;
+    }
+    justifyThreshold = aJustifyThreshold;
+}
+
 -(void)layoutIfNeeded
 {
 	if (_needFrameLayout) {
