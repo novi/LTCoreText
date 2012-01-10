@@ -90,7 +90,7 @@
 	[self _recreateTextviews];
 }
 
--(void)scrollToPageIndex:(NSUInteger)pageIndex animated:(BOOL)animated
+-(void)scrollToScrollIndex:(NSUInteger)pageIndex animated:(BOOL)animated
 {
     if (pageIndex+1 > _pageCount) {
         pageIndex = _pageCount-1;
@@ -111,7 +111,7 @@
     NSUInteger scrollIndex = [self _scrollIndexOfLayouter:[_layouters objectAtIndex:layouterIndex]
                                               atPageIndex:pageIndex];
 	
-    [self scrollToPageIndex:scrollIndex animated:animated];
+    [self scrollToScrollIndex:scrollIndex animated:animated];
 }
 
 -(void)scrollToStringIndex:(NSUInteger)strIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated

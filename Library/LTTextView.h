@@ -35,15 +35,16 @@ enum {
 @interface LTTextView : UIScrollView<UIScrollViewDelegate>
 
 @property (nonatomic, assign) id<LTTextViewDelegate> textViewDelegate;
-@property (nonatomic, retain, readonly) NSArray* layouters;
 @property (nonatomic) LTTextViewLayoutMode layoutMode;
+
+@property (nonatomic, retain, readonly) NSArray* layouters;
 @property (nonatomic, readonly) NSUInteger allPageCount;
 @property (nonatomic, readonly) NSUInteger scrollIndex;
 
 - (void)insertLayouter:(LTTextLayouter*)layouter atIndex:(NSUInteger)index;
 - (void)removeLayouterAtIndex:(NSUInteger)index;
 
-- (void)scrollToPageIndex:(NSUInteger)pageIndex animated:(BOOL)animated;
+- (void)scrollToScrollIndex:(NSUInteger)pageIndex animated:(BOOL)animated;
 - (void)scrollToLayouterPageIndex:(NSUInteger)pageIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated;
 - (void)scrollToStringIndex:(NSUInteger)strIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated;
 
