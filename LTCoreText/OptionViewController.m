@@ -2,8 +2,9 @@
 //  OptionViewController.m
 //  LTCoreText
 //
-//  Created by 伊藤 祐輔 on 12/01/09.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
+//  Created by Yusuke Ito on 2012/01/09.
+//  Copyright 2011-12 Yusuke Ito
+//  http://www.opensource.org/licenses/MIT
 //
 
 #import "OptionViewController.h"
@@ -83,6 +84,8 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+#pragma mark -
+
 - (IBAction)lColStepChanged:(UIStepper*)sender
 {
     [[NSUserDefaults standardUserDefaults] setInteger:sender.value forKey:@"lCol"];
@@ -117,7 +120,8 @@
     [self _updateUI];
 }
 
-- (IBAction)lJustifyChanged:(UISlider*)sender {
+- (IBAction)lJustifyChanged:(UISlider*)sender
+{
     [sender setShowValue:YES];
     if (sender.value >= 0.98) {
         sender.value = 1.0;
@@ -125,7 +129,8 @@
     [[NSUserDefaults standardUserDefaults] setFloat:sender.value forKey:@"lJustify"];
 }
 
-- (IBAction)pJustifyChanged:(UISlider*)sender {
+- (IBAction)pJustifyChanged:(UISlider*)sender 
+{
     [sender setShowValue:YES];
     if (sender.value >= 0.98) {
         sender.value = 1.0;

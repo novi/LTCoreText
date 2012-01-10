@@ -2,8 +2,9 @@
 //  AppDelegate.m
 //  LTCoreText
 //
-//  Created by 伊藤 祐輔 on 11/12/16.
-//  Copyright (c) 2011年 __MyCompanyName__. All rights reserved.
+//  Created by Yusuke Ito on 2011/12/16.
+//  Copyright 2011-12 Yusuke Ito
+//  http://www.opensource.org/licenses/MIT
 //
 
 #import "AppDelegate.h"
@@ -31,7 +32,9 @@
     
     for (NSString* filename in [fm contentsOfDirectoryAtPath:[[NSBundle mainBundle] resourcePath] error:nil]) {
         NSString* filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filename];
-        [fm copyItemAtPath:filePath toPath:[documentsDirectory stringByAppendingPathComponent:filename] error:nil];
+        if ([[filename pathExtension] isEqualToString:@"html"]) {
+            [fm copyItemAtPath:filePath toPath:[documentsDirectory stringByAppendingPathComponent:filename] error:nil];
+        }
     }
     
     

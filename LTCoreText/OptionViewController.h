@@ -2,8 +2,9 @@
 //  OptionViewController.h
 //  LTCoreText
 //
-//  Created by 伊藤 祐輔 on 12/01/09.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
+//  Created by Yusuke Ito on 2012/01/09.
+//  Copyright 2011-12 Yusuke Ito
+//  http://www.opensource.org/licenses/MIT
 //
 
 #import <UIKit/UIKit.h>

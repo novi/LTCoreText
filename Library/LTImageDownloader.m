@@ -2,9 +2,10 @@
 //  LTImageDownloader.m
 //  LTCoreText
 //
-//  Created by ito on H.23/08/02.
-//  Copyright 平成23年 __MyCompanyName__. All rights reserved.
-//
+//  Created by Yusuke Ito on 2011/08/02.
+//  Copyright 2011-12 Yusuke Ito
+//  http://www.opensource.org/licenses/MIT
+// 
 
 #import "LTImageDownloader.h"
 #import "CGUtils.h"

@@ -2,9 +2,10 @@
 //  LTTextPageView.m
 //  LTCoreText
 //
-//  Created by ito on H.23/07/07.
-//  Copyright 平成23年 __MyCompanyName__. All rights reserved.
-//
+//  Created by Yusuke Ito on 2011/07/07.
+//  Copyright 2011-12 Yusuke Ito
+//  http://www.opensource.org/licenses/MIT
+// 
 
 #import "LTTextPageView.h"
 #import "LTImageDownloader.h"
