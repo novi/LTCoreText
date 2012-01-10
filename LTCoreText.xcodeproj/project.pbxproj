@@ -60,7 +60,6 @@
 		520EDEA1149B42F300DE253D /* UIDevice+DTVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE84149B42F300DE253D /* UIDevice+DTVersion.m */; };
 		520EDEA3149B430D00DE253D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA2149B430D00DE253D /* QuartzCore.framework */; };
 		520EDEA5149B431200DE253D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA4149B431200DE253D /* ImageIO.framework */; };
-		520EDEA7149B453F00DE253D /* README.html in Resources */ = {isa = PBXBuildFile; fileRef = 520EDEA6149B453F00DE253D /* README.html */; };
 		520EDEAA149B549C00DE253D /* LTTextAttachmentRunDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */; };
 		52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */ = {isa = PBXBuildFile; fileRef = 52D7070B14BA72130085C1FA /* 1935_19925.html */; };
 		52D7071914BA80460085C1FA /* DownloadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D7071714BA80450085C1FA /* DownloadViewController.m */; };
@@ -179,7 +178,6 @@
 		520EDE84149B42F300DE253D /* UIDevice+DTVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIDevice+DTVersion.m"; path = "../../../../Dev/ExtProj/DTCoreText/Core/Source/UIDevice+DTVersion.m"; sourceTree = "<group>"; };
 		520EDEA2149B430D00DE253D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		520EDEA4149B431200DE253D /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		520EDEA6149B453F00DE253D /* README.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = README.html; path = ../../../../../Dev/ExtProj/DTCoreText/Demo/Resources/README.html; sourceTree = "<group>"; };
 		520EDEA8149B549A00DE253D /* LTTextAttachmentRunDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTTextAttachmentRunDelegate.h; sourceTree = "<group>"; };
 		520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTTextAttachmentRunDelegate.m; sourceTree = "<group>"; };
 		52D7070B14BA72130085C1FA /* 1935_19925.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = 1935_19925.html; sourceTree = "<group>"; };
@@ -278,7 +276,6 @@
 			isa = PBXGroup;
 			children = (
 				52D7070B14BA72130085C1FA /* 1935_19925.html */,
-				520EDEA6149B453F00DE253D /* README.html */,
 				520EDDEF149AFD5900DE253D /* LTCoreText-Info.plist */,
 				520EDDF0149AFD5900DE253D /* InfoPlist.strings */,
 				520EDDF3149AFD5900DE253D /* main.m */,
@@ -493,7 +490,6 @@
 			files = (
 				520EDDF2149AFD5900DE253D /* InfoPlist.strings in Resources */,
 				520EDE01149AFD5900DE253D /* MainViewController.xib in Resources */,
-				520EDEA7149B453F00DE253D /* README.html in Resources */,
 				52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */,
 				52D7071A14BA80460085C1FA /* DownloadViewController.xib in Resources */,
 				52D7072414BA8B220085C1FA /* OptionViewController.xib in Resources */,
