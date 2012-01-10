@@ -8,7 +8,7 @@
 
 #import "LTCoreText.h"
 
-#define LTTextPageViewDrawPageNumDebug (1)
+#define LTTextPageViewDrawPageNumDebug (0)
 
 @interface LTTextPageView : UIView
 

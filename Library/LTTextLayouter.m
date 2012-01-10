@@ -359,20 +359,28 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 [lineAttrString release];
             } else {
                 if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
+                    // TODO: justify with hyphenation
+                } else {
+                    CTLineDraw(line, context);
+                }
+            }
+        } else {
+            if (_verticalText) {
+                if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.height*justifyThreshold) {
+                    CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.height);
+                    CTLineDraw(justLine, context);
+                    CFRelease(justLine);
+                } else {
+                    CTLineDraw(line, context);
+                }
+            } else {
+                if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
                     CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
                     CTLineDraw(justLine, context);
                     CFRelease(justLine);
                 } else {
                     CTLineDraw(line, context);
                 }
-            }
-        } else {
-            if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
-                CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
-                CTLineDraw(justLine, context);
-                CFRelease(justLine);
-            } else {
-                CTLineDraw(line, context);
             }
         }
         

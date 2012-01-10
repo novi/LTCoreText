@@ -332,7 +332,9 @@
                                                                                      options:nil];
         landscapeLayouter.columnCount = [defaults integerForKey:@"lCol"];
         landscapeLayouter.verticalText = [defaults boolForKey:@"lColVLayout"];
-        landscapeLayouter.contentInset = UIEdgeInsetsMake(10, 20, 30, 40);
+        landscapeLayouter.contentInset = UIEdgeInsetsMake(100, 80, 50, 90);
+        landscapeLayouter.columnSpace = 40;
+        landscapeLayouter.justifyThreshold = 0.8;
         //_landscapeLayouter.contentInset = UIEdgeInsetsMake(40, 30, 20, 10);
         [landscapeLayouter layoutIfNeeded];
         
@@ -345,7 +347,9 @@
         
         portraitLayouter.columnCount = [defaults integerForKey:@"pCol"];
         portraitLayouter.verticalText = [defaults boolForKey:@"pColVLayout"];
-        portraitLayouter.contentInset = UIEdgeInsetsMake(10, 20, 30, 40);
+        portraitLayouter.contentInset = UIEdgeInsetsMake(120, 100, 50, 40);
+        portraitLayouter.justifyThreshold = 0.8;
+        portraitLayouter.columnSpace = 40;
         [portraitLayouter layoutIfNeeded]; 
         
         dispatch_async(dispatch_get_main_queue(), ^{
