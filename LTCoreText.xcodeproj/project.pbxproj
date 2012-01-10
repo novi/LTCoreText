@@ -61,6 +61,7 @@
 		520EDEA3149B430D00DE253D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA2149B430D00DE253D /* QuartzCore.framework */; };
 		520EDEA5149B431200DE253D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA4149B431200DE253D /* ImageIO.framework */; };
 		520EDEAA149B549C00DE253D /* LTTextAttachmentRunDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */; };
+		522202CA14BC67DF0050D161 /* iphone.html in Resources */ = {isa = PBXBuildFile; fileRef = 522202C914BC67DE0050D161 /* iphone.html */; };
 		52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */ = {isa = PBXBuildFile; fileRef = 52D7070B14BA72130085C1FA /* 1935_19925.html */; };
 		52D7071914BA80460085C1FA /* DownloadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D7071714BA80450085C1FA /* DownloadViewController.m */; };
 		52D7071A14BA80460085C1FA /* DownloadViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 52D7071814BA80460085C1FA /* DownloadViewController.xib */; };
@@ -180,6 +181,8 @@
 		520EDEA4149B431200DE253D /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		520EDEA8149B549A00DE253D /* LTTextAttachmentRunDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTTextAttachmentRunDelegate.h; sourceTree = "<group>"; };
 		520EDEA9149B549B00DE253D /* LTTextAttachmentRunDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTTextAttachmentRunDelegate.m; sourceTree = "<group>"; };
+		522202C714BC5FF50050D161 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		522202C914BC67DE0050D161 /* iphone.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = iphone.html; sourceTree = "<group>"; };
 		52D7070B14BA72130085C1FA /* 1935_19925.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = 1935_19925.html; sourceTree = "<group>"; };
 		52D7071614BA80450085C1FA /* DownloadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadViewController.h; sourceTree = "<group>"; };
 		52D7071714BA80450085C1FA /* DownloadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadViewController.m; sourceTree = "<group>"; };
@@ -219,6 +222,7 @@
 		520EDDD8149AFD5900DE253D = {
 			isa = PBXGroup;
 			children = (
+				522202C714BC5FF50050D161 /* README.md */,
 				520EDE46149B3EC600DE253D /* DTCoreText - AttributedString */,
 				520EDE22149AFE4800DE253D /* Library */,
 				520EDDED149AFD5900DE253D /* LTCoreText */,
@@ -275,6 +279,7 @@
 		520EDDEE149AFD5900DE253D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				522202C914BC67DE0050D161 /* iphone.html */,
 				52D7070B14BA72130085C1FA /* 1935_19925.html */,
 				520EDDEF149AFD5900DE253D /* LTCoreText-Info.plist */,
 				520EDDF0149AFD5900DE253D /* InfoPlist.strings */,
@@ -493,6 +498,7 @@
 				52D7070C14BA72130085C1FA /* 1935_19925.html in Resources */,
 				52D7071A14BA80460085C1FA /* DownloadViewController.xib in Resources */,
 				52D7072414BA8B220085C1FA /* OptionViewController.xib in Resources */,
+				522202CA14BC67DF0050D161 /* iphone.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
