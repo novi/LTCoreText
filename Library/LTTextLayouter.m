@@ -794,7 +794,14 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 CFRange range = CTRunGetStringRange((CTRunRef) runObj);
                 NSLog(@"----      %@", [_attributedString.string substringWithRange:NSMakeRange(range.location, range.length)]);
             }*/
+            
+            
+            NSMutableDictionary* result = [NSMutableDictionary dictionaryWithObject:value forKey:@"LTTextAttrValue"];
+            [result setObject:[NSValue valueWithRange:range] forKey:@"LTTextAttrRange"];
+            
             NSArray* frames = [textFrame framesWithRange:range];
+            NSMutableArray* dstFrames = [NSMutableArray arrayWithCapacity:frames.count];
+            
             for (NSValue* frameObj in frames) {
                 CGRect f = [frameObj CGRectValue];
                 
@@ -804,8 +811,11 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 // convert frame to page view's coordinate
                 CGRect colFrame = [self columnFrameWithColumn:col];
                 f = CGRectOffset(f, colFrame.origin.x, colFrame.origin.y);
-                [dst addObject:[NSValue valueWithCGRect:f]];
+                [dstFrames addObject:[NSValue valueWithCGRect:f]];
             }
+            
+            [result setObject:dstFrames forKey:@"LTTextAttrFrames"];
+            [dst addObject:result];
         }
 
     }];

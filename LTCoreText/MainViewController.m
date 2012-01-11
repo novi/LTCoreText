@@ -394,16 +394,26 @@
     
     NSUInteger pageIndex = 0;
     LTTextLayouter* layouter = [textView _layouterAtScrollIndex:textView.scrollIndex pageIndexOnLayouter:&pageIndex];
+    UIView* pageView = [textView pageViewAtScrollIndex:textView.scrollIndex];
+    
+    for (UIView* view in [pageView.subviews reverseObjectEnumerator]) {
+        [view removeFromSuperview];
+    }
     
     for (int i = 0; i < [layouter columnCountAtPageIndex:pageIndex]; i++) {
-        NSMutableArray* frames = [[layouter allValueForAttribute:@"DTTextAttachment" atPageIndex:pageIndex column:i] mutableCopy];
-        [frames addObjectsFromArray:[layouter allValueForAttribute:@"DTLink" atPageIndex:pageIndex column:i]];
-        for (NSValue* frameObj in frames) {
-            UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
-            view.userInteractionEnabled = NO;
-            view.backgroundColor = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
-            UIView* pageView = [textView pageViewAtScrollIndex:textView.scrollIndex];
-            [pageView addSubview:view];
+        NSMutableArray* vals = [[layouter allValueForAttribute:@"DTTextAttachment" atPageIndex:pageIndex column:i] mutableCopy];
+        [vals addObjectsFromArray:[layouter allValueForAttribute:@"DTLink" atPageIndex:pageIndex column:i]];
+        
+        for (NSDictionary* dict in vals) {
+            NSMutableArray* frames = [dict objectForKey:@"LTTextAttrFrames"];
+            UIColor* color = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
+            for (NSValue* frameObj in frames) {
+                UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
+                view.userInteractionEnabled = NO;
+                view.backgroundColor = color;
+               
+                [pageView addSubview:view];
+            }
         }
     }
     
