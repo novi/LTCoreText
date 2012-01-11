@@ -397,7 +397,9 @@
     UIView* pageView = [textView pageViewAtScrollIndex:textView.scrollIndex];
     
     for (UIView* view in [pageView.subviews reverseObjectEnumerator]) {
-        [view removeFromSuperview];
+        if (view.tag == 99) {
+            [view removeFromSuperview];
+        }
     }
     
     for (int i = 0; i < [layouter columnCountAtPageIndex:pageIndex]; i++) {
@@ -409,6 +411,7 @@
             UIColor* color = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
             for (NSValue* frameObj in frames) {
                 UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
+                view.tag = 99;
                 view.userInteractionEnabled = NO;
                 view.backgroundColor = color;
                

@@ -751,9 +751,11 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		NSMutableArray* dstarrayPage = [NSMutableArray array];
 		[_attachments addObject:dstarrayPage];
 		for (LTTextFrame* frame in frames) {
-			NSMutableArray* dstArrayFrame = [NSMutableArray array];
+			/*NSMutableArray* dstArrayFrame = [NSMutableArray array];
 			[self _storeFrameOfAttachment:frame to:dstArrayFrame];
 			[dstarrayPage addObject:dstArrayFrame];
+             */
+            [dstarrayPage addObject:[NSNull null]]; // add dummy object
 		}
 	}
 }
@@ -765,15 +767,20 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         [self _layoutFrame];
     }
     
-    return [[[[_attachments objectAtIndex:index] objectAtIndex:col] copy] autorelease];
+    
+    NSMutableArray* attachments = [[_attachments objectAtIndex:index] objectAtIndex:col];
+    if ([attachments isKindOfClass:[NSNull class]]) {
+        attachments = [NSMutableArray array];
+        LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
+        [self _storeFrameOfAttachment:textFrame to:attachments];
+        [[_attachments objectAtIndex:index] replaceObjectAtIndex:col withObject:attachments];
+        LTTextLogInfo(@"Attachment not created, page=%d, col=%d, created count=%d", index, col, attachments.count);
+    }
+    
+    return [[attachments copy] autorelease];
 }
 
 #pragma mark - Custom Attributes
-
-
-
-
-
 
 
 - (NSArray*)allValueForAttribute:(NSString*)attrKey atPageIndex:(NSUInteger)index column:(NSUInteger)col
