@@ -27,8 +27,6 @@
 @property (nonatomic) float justifyThreshold; // 1.0 is no justify
 @property (nonatomic) BOOL useHyphenation; // attributedString must be hyphenated with (soft-hyphen, u0x00AD)
 
-
-- (CGRect)_columnFrameWithColumn:(NSUInteger)col;
 - (NSUInteger)columnCountAtPageIndex:(NSUInteger)index;
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
 - (NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col;
@@ -37,6 +35,8 @@
 
 - (void)layoutIfNeeded;
 
+
+- (CGRect)columnFrameWithColumn:(NSUInteger)col;
 - (void)drawInContext:(CGContextRef)context atPage:(NSUInteger)pageIndex;
 
 @end

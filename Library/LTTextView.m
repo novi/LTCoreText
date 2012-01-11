@@ -8,7 +8,6 @@
 // 
 
 #import "LTTextView.h"
-//#import "NSAttributedString+HTML.h"
 #import "LTTextPageView.h"
 
 @interface LTTextView()
@@ -27,6 +26,7 @@
     NSUInteger _scrollIndexChanged;
 }
 
+- (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count;
 - (CGPoint)_contentOffsetForIndex:(NSUInteger)index;
 - (CGSize)_contentSizeForCurrentLayoutMode;
 - (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index indexOnLayouter:(NSUInteger*)indexOn;
@@ -55,7 +55,6 @@
 		self.autoresizesSubviews = NO;
 		self.delegate = self;
 		
-		//_attributedStrings = [[NSMutableArray alloc] init];
 		_layouters = [[NSMutableArray alloc] init];
 		_loadedViews = [[NSMutableArray alloc] init];
 		
@@ -72,10 +71,7 @@
     [super dealloc];
 }
 
--(NSArray *)layouters
-{
-	return [NSArray arrayWithArray:_layouters];
-}
+
 
 - (void)_calculatePageCount
 {
@@ -90,6 +86,48 @@
 {
 	[self _recreateTextviews];
 }
+
+#pragma mark - Accessory Method
+
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+	_framesizeChanged = YES;
+}
+-(void)setBounds:(CGRect)bounds
+{
+	[super setBounds:bounds];
+	//_framesizeChanged = YES;
+}
+
+-(NSArray *)layouters
+{
+	return [NSArray arrayWithArray:_layouters];
+}
+
+-(void)setLayoutMode:(LTTextViewLayoutMode)layoutMode
+{
+    if (_layoutMode == layoutMode) {
+        return;
+    }
+    if (layoutMode == LTTextViewLayoutModeNormal ||
+        layoutMode == LTTextViewLayoutModeReverse ||
+        layoutMode == LTTextViewLayoutModeVertical) {
+        _layoutMode = layoutMode;
+    } else {
+        _layoutMode = LTTextViewLayoutModeNormal;
+    }
+    
+    NSLog(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
+    
+    _layoutModeChanged = YES;
+    
+    _framesizeChanged = YES;
+    [self setNeedsLayout];
+}
+
+
+#pragma mark - Scroll and String index
 
 -(void)scrollToScrollIndex:(NSUInteger)pageIndex animated:(BOOL)animated
 {
@@ -198,15 +236,7 @@
 	return nil;
 }
 
-- (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count
-{
-	NSMutableArray* array = [NSMutableArray arrayWithCapacity:count];
-	for (NSUInteger i = 0; i < count; i++) {
-		[array addObject:[NSNull null]];
-	}
-	
-	return array;
-}
+#pragma mark - Layouter
 
 -(void)insertLayouter:(LTTextLayouter *)layouter atIndex:(NSUInteger)index
 {
@@ -225,7 +255,6 @@
 	[self _calculatePageCount];
 	
 	
-	CGRect bounds = self.bounds;
 	self.contentSize = [self _contentSizeForCurrentLayoutMode];
 	
 	[self _recreateTextviews];
@@ -250,7 +279,6 @@
 	
 	[self _calculatePageCount];
 	
-	CGRect bounds = self.bounds;
 	self.contentSize = [self _contentSizeForCurrentLayoutMode];
 	
 	[self _recreateTextviews];
@@ -258,6 +286,8 @@
 	self.contentOffset = [self _contentOffsetForIndex:[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
 	self.scrollEnabled = YES;
 }
+
+#pragma mark - Content frames
 
 - (CGSize)_contentSizeForCurrentLayoutMode
 {
@@ -324,6 +354,8 @@
 	return CGRectZero;
 }
 
+#pragma mark - Page Views
+
 - (UIView*)_hasViewWithScrollIndex:(NSUInteger)scrollIndex
 {
 	CGRect frame = [self _frameWithScrollIndex:scrollIndex];
@@ -370,65 +402,16 @@
 	return pageView;
 }
 
-- (void)_framesizeChanged
-{
-	_framesizeChanged = NO;
 
-	
-	for (UIView* view in self.subviews) {
-		if ([view isKindOfClass:[LTTextPageView class]]) {
-			[view removeFromSuperview];
-		}
+- (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count
+{
+	NSMutableArray* array = [NSMutableArray arrayWithCapacity:count];
+	for (NSUInteger i = 0; i < count; i++) {
+		[array addObject:[NSNull null]];
 	}
 	
-	[self _calculatePageCount];
-	self.contentSize = [self _contentSizeForCurrentLayoutMode];
-	
-	//self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:_currentPageState._layouter atPageIndex:_currentPageState._pageIndex], 0);
-	
-	//[self setContentOffset:CGPointMake(self.bounds.size.width*_currentPageIndex, 0) animated:NO];
-	//[self scrollToStringIndex:_currentState.strIndex onAttributedStringAtIndex:_currentState.attrIndex animated:YES];
-	
-    if (_layoutModeChanged) {
-        _layoutModeChanged = NO;
-        self.contentOffset = [self _contentOffsetForIndex:_currentScrollIndex];
-    } else {
-        //[self scrollToStringIndex:_currentState.strIndex onLayouterAtIndex:_currentState.attrIndex animated:NO];
-    }
+	return array;
 }
-
--(void)setFrame:(CGRect)frame
-{
-	[super setFrame:frame];
-	_framesizeChanged = YES;
-}
--(void)setBounds:(CGRect)bounds
-{
-	[super setBounds:bounds];
-	//_framesizeChanged = YES;
-}
-
--(void)setLayoutMode:(LTTextViewLayoutMode)layoutMode
-{
-    if (_layoutMode == layoutMode) {
-        return;
-    }
-    if (layoutMode == LTTextViewLayoutModeNormal ||
-        layoutMode == LTTextViewLayoutModeReverse ||
-        layoutMode == LTTextViewLayoutModeVertical) {
-        _layoutMode = layoutMode;
-    } else {
-        _layoutMode = LTTextViewLayoutModeNormal;
-    }
-    
-    NSLog(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
-    
-    _layoutModeChanged = YES;
-    
-    _framesizeChanged = YES;
-    [self setNeedsLayout];
-}
-
 
 - (void)_recreateTextviews
 {
@@ -529,6 +512,35 @@
     
 }
 
+
+- (void)_framesizeChanged
+{
+	_framesizeChanged = NO;
+    
+	
+	for (UIView* view in self.subviews) {
+		if ([view isKindOfClass:[LTTextPageView class]]) {
+			[view removeFromSuperview];
+		}
+	}
+	
+	[self _calculatePageCount];
+	self.contentSize = [self _contentSizeForCurrentLayoutMode];
+	
+	//self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:_currentPageState._layouter atPageIndex:_currentPageState._pageIndex], 0);
+	
+	//[self setContentOffset:CGPointMake(self.bounds.size.width*_currentPageIndex, 0) animated:NO];
+	//[self scrollToStringIndex:_currentState.strIndex onAttributedStringAtIndex:_currentState.attrIndex animated:YES];
+	
+    if (_layoutModeChanged) {
+        _layoutModeChanged = NO;
+        self.contentOffset = [self _contentOffsetForIndex:_currentScrollIndex];
+    } else {
+        //[self scrollToStringIndex:_currentState.strIndex onLayouterAtIndex:_currentState.attrIndex animated:NO];
+    }
+}
+
+
 -(void)layoutSubviews
 {
 	[super layoutSubviews];
@@ -563,7 +575,6 @@
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-	//_currentPageIndex = [self _currentIndex];
     if (!decelerate) {
         [self _notifyScrollIndexChangingIfChanged];
     }
@@ -576,8 +587,7 @@
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-	//LTTextPageView* pageView = (id)[self _hasViewWithScrollIndex:[self _currentScrollIndex]];
-	//[pageView showAttachmentsIfNeeded];
+    
 }
 
 @end

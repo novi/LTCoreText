@@ -81,13 +81,13 @@
     [super dealloc];
 }
 
-#pragma mark - Images
+#pragma mark - Attachments
 
-- (void)lt_imageSelected:(LTTextImageView*)imageView
+/*- (void)lt_imageSelected:(LTTextImageView*)imageView
 {
 	[_zoomedImageView removeFromSuperview];
 	LTTextRelease(_zoomedImageView);
-	
+*/	
 	
 	/*[[LTImageDownloader sharedInstance] downloadImageWithURL:imageView.attachment.contentURL
 												 imageBounds:CGSizeZero
@@ -107,8 +107,9 @@
 			 
 		 }
 	 }];*/
-}
+//}
 
+/*
 -(void)lt_zoomedImageViewClose:(LTTextImageScrollView*)zoomedImageView
 {
 	UIScrollView* superview = (id)self.superview;
@@ -121,6 +122,7 @@
 		LTTextRelease(_zoomedImageView);
 	}];
 }
+ */
 
 - (void)showAttachmentsIfNeeded
 {
@@ -134,7 +136,7 @@
     
     NSUInteger colCount = [_layouter columnCountAtPageIndex:_index];
     for (NSUInteger i = 0; i < colCount; i++) {
-        CGRect colFrame = [_layouter _columnFrameWithColumn:i];
+        CGRect colFrame = [_layouter columnFrameWithColumn:i];
         NSArray* attrs = [_layouter attachmentsAtPageIndex:_index column:i];
         for (NSDictionary* dict in attrs) {
             CGRect frame = [[dict objectForKey:@"frame"] CGRectValue];

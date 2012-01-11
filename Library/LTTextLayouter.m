@@ -178,7 +178,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     return CGSizeMake(width, contentFrame.size.height);
 }
 
-- (CGRect)_columnFrameWithColumn:(NSUInteger)col
+- (CGRect)columnFrameWithColumn:(NSUInteger)col
 {
 	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
     
@@ -218,7 +218,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	NSMutableArray* currentFrames = [NSMutableArray array];
 	for (; ; ) {
         
-		CGRect contentFrame = [self _columnFrameWithColumn:currentFrames.count];
+		CGRect contentFrame = [self columnFrameWithColumn:currentFrames.count];
         
         NSLog(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
         
@@ -269,6 +269,16 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	
 	LTTextLogInfo(@"page count %d", [_frames count]);
 }
+
+-(void)layoutIfNeeded
+{
+	if (_needFrameLayout) {
+		[self _layoutFrame];
+	}
+}
+
+
+#pragma mark - Accessory Method
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor
 {
@@ -328,13 +338,9 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     justifyThreshold = aJustifyThreshold;
 }
 
--(void)layoutIfNeeded
-{
-	if (_needFrameLayout) {
-		[self _layoutFrame];
-	}
-}
 
+
+#pragma mark - Drawing
 
 - (void)_lt_frameDraw:(CGContextRef)context pathBBox:(CGRect)pathBBox lines:(CFArrayRef)lines lineOrigin:(CGPoint *)lineOrigin
 {
