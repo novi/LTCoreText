@@ -23,6 +23,6 @@
 #define LTTextMethodDebugLog() {NSLog(@"%s,%@", __func__, self);}
 
 
-#define LTTextViewBackgroundColorDebug (0)
+#define LTTextViewBackgroundColorDebug (1)
 
 

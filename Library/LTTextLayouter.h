@@ -39,6 +39,10 @@
 - (CGRect)columnFrameWithColumn:(NSUInteger)col;
 - (void)drawInContext:(CGContextRef)context atPage:(NSUInteger)pageIndex;
 
+
+
+- (NSArray*)allValueForAttribute:(NSString*)attrKey atPageIndex:(NSUInteger)index column:(NSUInteger)col;
+
 @end
 
 

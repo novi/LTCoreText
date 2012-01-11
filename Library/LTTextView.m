@@ -29,7 +29,7 @@
 - (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count;
 - (CGPoint)_contentOffsetForIndex:(NSUInteger)index;
 - (CGSize)_contentSizeForCurrentLayoutMode;
-- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index indexOnLayouter:(NSUInteger*)indexOn;
+- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
 - (NSUInteger)_scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index;
 - (void)_recreateTextviews;
 
@@ -171,7 +171,7 @@
 -(void)stringIndex:(NSUInteger *)strIndex layouterIndex:(NSUInteger *)layouterIndex
 {
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:_currentScrollIndex indexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	if (layouterIndex) {
 		*layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	}
@@ -216,7 +216,7 @@
 }
 */
 
-- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index indexOnLayouter:(NSUInteger*)indexOn
+- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn
 {
 	if (index+1 > _pageCount) {
 		return nil;
@@ -246,7 +246,7 @@
 	
 	// Get current layouter and page index
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex indexOnLayouter:&pageIndex];
+	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	
 	// Add attributed string and create layouter
 	[_layouters insertObject:layouter atIndex:index];
@@ -271,7 +271,7 @@
 	
 	// Get current layouter and page index
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex indexOnLayouter:&pageIndex];
+	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	
 	// Remove string and layouter
 	[_layouters removeObjectAtIndex:index];
@@ -364,7 +364,7 @@
 	}
 	
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex indexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	
 	/*for (LTTextPageView* pageview  in self.subviews) {
@@ -390,7 +390,7 @@
 	}
 	
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex indexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
 	LTTextPageView* pageView = [[[LTTextPageView alloc] initWithFrame:frame layouter:layouter pageIndex:pageIndex] autorelease];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	
@@ -402,6 +402,19 @@
 	return pageView;
 }
 
+-(UIView *)pageViewAtScrollIndex:(NSUInteger)index
+{
+    NSUInteger pageIndex = 0;
+	LTTextLayouter* layouter = [self _layouterAtScrollIndex:index pageIndexOnLayouter:&pageIndex];
+	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
+    
+	id obj = [[_loadedViews objectAtIndex:layouterIndex] objectAtIndex:pageIndex];
+	if ([obj isKindOfClass:[NSNull class]]) {
+		return nil;
+	}
+    
+    return (UIView*)obj;
+}
 
 - (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count
 {

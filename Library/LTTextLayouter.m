@@ -12,20 +12,173 @@
 
 @interface LTTextFrame : NSObject
 {
-    
+    id _frame;
+    CGPoint* _lineOrigins;
 }
 
 @property (nonatomic, retain) id frame;
 @property (nonatomic) CGRect contentFrame;
+@property (nonatomic) CGRect frameBounds; // frame path
+@property (nonatomic) CGPoint* lineOrigins;
+@property (nonatomic) BOOL verticalLayout;
+
+- (NSUInteger)indexOfLine:(CTLineRef)line;
 
 
 @end
 
 @implementation LTTextFrame
 
-@synthesize frame, contentFrame;
+@synthesize frame = _frame, contentFrame;
+@synthesize lineOrigins = _lineOrigins;
+@synthesize frameBounds;
+@synthesize verticalLayout;
+
+-(NSUInteger)indexOfLine:(CTLineRef)line
+{
+    NSArray* lines = (NSArray*)CTFrameGetLines((CTFrameRef)_frame);
+    return [lines indexOfObjectIdenticalTo:(id)line];
+}
+
+-(void)setFrame:(id)frame
+{
+    if (_frame != frame) {
+        LTTextRelease(_frame);
+        _frame = [frame retain];
+    }
+    
+    if (_lineOrigins) {
+        free(_lineOrigins);
+        _lineOrigins = NULL;
+    }
+    
+    if (!frame) {
+        return;
+    }
+    
+    CFArrayRef lines = CTFrameGetLines((CTFrameRef)_frame);
+    _lineOrigins = malloc(sizeof(CGPoint)*CFArrayGetCount(lines));
+    CTFrameGetLineOrigins((CTFrameRef)_frame, CFRangeMake(0, CFArrayGetCount(lines)), _lineOrigins);
+}
+
+- (NSArray*)linesWithRange:(NSRange)range
+{
+    NSArray* lines = (NSArray*)CTFrameGetLines((CTFrameRef)_frame);
+    NSMutableArray* dst = [NSMutableArray arrayWithCapacity:lines.count];
+    
+    for (id line in lines) {
+        CFRange cfrange = CTLineGetStringRange((CTLineRef)line);
+        NSRange lineRange = NSMakeRange(cfrange.location, cfrange.length);
+        if (NSLocationInRange(range.location, lineRange) || NSLocationInRange(range.location+range.length-1, lineRange)) {
+            //NSLog(@"added: %@", [_attributedString.string substringWithRange:lineRange]);
+            [dst addObject:(id)line];
+        } else {
+            //NSLog(@"skipped: %@", [_attributedString.string substringWithRange:lineRange]);
+        }
+    }
+    
+    return dst;
+}
+
+- (NSArray *)glyphRunsWithRange:(NSRange)range onLine:(CTLineRef)line
+{
+    NSArray* runs = (NSArray*)CTLineGetGlyphRuns(line);
+    NSMutableArray* dst = [NSMutableArray arrayWithCapacity:runs.count];
+    
+    for (id runObj in runs) {
+        CTRunRef run = (CTRunRef)runObj;
+        CFRange cfrange = CTRunGetStringRange(run);
+        NSRange runRange = NSMakeRange(cfrange.location, cfrange.length);
+        if (NSLocationInRange(runRange.location, range)) {
+            [dst addObject:(id)run];
+        }
+    }
+    
+    return dst;
+}
+
+// the rect's origin is on frameBounds, not include layouter's content inset
+- (CGRect)frameWithGlyphRuns:(NSArray*)runs onLine:(CTLineRef)line
+{
+    if (runs.count == 0) {
+        return CGRectZero;
+    }
+    
+    CGRect rect = CGRectZero;
+    
+    NSUInteger lineIndex = [self indexOfLine:line];
+    if (lineIndex == NSNotFound) {
+        return CGRectZero;
+    }
+    
+    CGPoint lineOrigin = self.lineOrigins[lineIndex];
+    
+    //NSLog(@"%s, lineOrigin, %@", __func__, NSStringFromCGPoint(lineOrigin) );
+    
+    for (id runObj in runs) {
+        
+        CGRect runFrame;
+        CGFloat ascent = 0;
+        CGFloat descent = 0;
+        CGFloat leading = 0;
+        CGFloat width = (CGFloat)CTRunGetTypographicBounds((CTRunRef)runObj, CFRangeMake(0, 0), &ascent, &descent, &leading);
+        CGPoint p;
+        
+        /*for (int i = 0; i < CTRunGetGlyphCount(runObj); i++) {
+            CTRunGetPositions(runObj, CFRangeMake(i, 1), &p);
+            NSLog(@"%d---%@", i, NSStringFromCGPoint(p));
+        }*/
+        
+        CTRunGetPositions((CTRunRef)runObj, CFRangeMake(0, 1), &p);
+        
+        CFDictionaryRef attr = CTRunGetAttributes((CTRunRef)runObj);
+        CGFloat xoffs = p.x;
+        NSNumber* vf = (id)CFDictionaryGetValue(attr, kCTVerticalFormsAttributeName);
+        if (vf && [vf boolValue]) {
+            xoffs = -p.y - leading - descent;
+        }
+        
+        // convert bottom-left origins to top-left
+        runFrame = CGRectMake(lineOrigin.x + xoffs, self.frameBounds.size.height - lineOrigin.y -ascent, width, ascent+descent);
+    
+        runFrame = CGRectStandardize(runFrame);
+        
+        if (CGRectEqualToRect(CGRectZero, rect)) {
+            rect = runFrame;
+        } else {
+            rect = CGRectUnion(rect, runFrame);
+        }
+    }
+    
+    return rect;
+}
+
+- (NSArray*)framesWithRange:(NSRange)range
+{
+    NSArray* lines = [self linesWithRange:range];
+    if (lines.count == 0) {
+        return [NSArray array];
+    }
+    
+    NSMutableArray* dst = [NSMutableArray arrayWithCapacity:2];
+    
+    for (id lineObj in lines) {
+        NSArray* runs = [self glyphRunsWithRange:range onLine:(CTLineRef)lineObj];
+        CGRect frame = [self frameWithGlyphRuns:runs onLine:(CTLineRef)lineObj];
+        if ( !CGRectIsEmpty(frame)) {
+            [dst addObject:[NSValue valueWithCGRect:frame]];
+        }
+    }
+    
+    return dst;
+}
+
 - (void)dealloc
 {
+    if (_lineOrigins) {
+        free(_lineOrigins);
+        _lineOrigins = NULL;
+    }
     self.frame = nil;
     [super dealloc];
 }
@@ -50,7 +203,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	UIEdgeInsets _contentInset;
 	CGFloat _columnSpace;
 	CGColorRef _backgroundColor;
-    BOOL _verticalText;
+    BOOL _verticalText;    
 }
 
 - (void)_createAttachmentsArray;
@@ -223,16 +376,21 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         NSLog(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
         
         CGPathRef path;
+        CGRect frameBounds;
         if (_verticalText) {
-            path = [[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, contentFrame.size.height, contentFrame.size.width)] CGPath];
+            frameBounds = CGRectMake(0, 0, contentFrame.size.height, contentFrame.size.width);
+            path = [[UIBezierPath bezierPathWithRect:frameBounds] CGPath];
         } else {
-            path = [[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, contentFrame.size.width, contentFrame.size.height)] CGPath];
+            frameBounds = CGRectMake(0, 0, contentFrame.size.width, contentFrame.size.height);
+            path = [[UIBezierPath bezierPathWithRect:frameBounds] CGPath];
         }
 		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, strRange, path, frameAttr);
         
         LTTextFrame* textFrame = [[LTTextFrame alloc] init];
         textFrame.frame = (id)frame;
         textFrame.contentFrame = contentFrame;
+        textFrame.frameBounds = frameBounds;
+        textFrame.verticalLayout = _verticalText;
 		
         [currentFrames addObject:textFrame];
         [textFrame release];
@@ -383,16 +541,24 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
             if (_verticalText) {
                 if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.height*justifyThreshold) {
                     CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.height);
-                    CTLineDraw(justLine, context);
-                    CFRelease(justLine);
+                    if (justLine) {
+                        CTLineDraw(justLine, context);
+                        CFRelease(justLine);
+                    } else {
+                        CTLineDraw(line, context);
+                    }
                 } else {
                     CTLineDraw(line, context);
                 }
             } else {
                 if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
                     CTLineRef justLine = CTLineCreateJustifiedLine(line, 1.0, pathBBox.size.width);
-                    CTLineDraw(justLine, context);
-                    CFRelease(justLine);
+                    if (justLine) {
+                        CTLineDraw(justLine, context);
+                        CFRelease(justLine);
+                    } else {
+                        CTLineDraw(line, context);
+                    }
                 } else {
                     CTLineDraw(line, context);
                 }
@@ -411,11 +577,23 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         return CGAffineTransformIdentity;
     }
     
+    CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+    
     CGAffineTransform t = CGAffineTransformIdentity;
-    t = CGAffineTransformRotate(t, -M_PI_2);
-    t = CGAffineTransformTranslate(t, -_frameSize.height, 0);
+    t = CGAffineTransformTranslate(t, contentFrame.size.width, 0);
+    t = CGAffineTransformRotate(t, M_PI_2);
     
     return t;
+}
+
+- (CGRect)_convertFrameForCurrentTextProgression:(CGRect)frame
+{
+    if (_verticalText) {
+        frame = CGRectApplyAffineTransform(frame, [self _transformForCurrentTextProgression]);
+        return frame;
+    } else {
+        return frame;
+    }
 }
 
 -(void)drawInContext:(CGContextRef)context atPage:(NSUInteger)page
@@ -430,7 +608,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	
 	
 	NSArray* frames = [_frames objectAtIndex:page];
-
+    
 #if LTTextViewBackgroundColorDebug
     for (NSUInteger i = 0; i < [frames count]; i++) {
         CGContextSaveGState(context);
@@ -444,12 +622,11 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 #endif
     
 	for (NSUInteger i = 0; i < [frames count]; i++) {
+        
 		
         LTTextFrame* textFrame = [frames objectAtIndex:i];
 		CTFrameRef frame = (CTFrameRef)textFrame.frame;
 		CFArrayRef lines = CTFrameGetLines(frame);
-		CGPoint* lineOrigin = malloc(CFArrayGetCount(lines)*sizeof(CGPoint));
-		CTFrameGetLineOrigins(frame, CFRangeMake(0, CFArrayGetCount(lines)), lineOrigin);
 		CGRect pathBBox = textFrame.contentFrame;
         
 		CGContextSaveGState(context);
@@ -463,7 +640,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         }
 		
         if (useHyphenation || justifyThreshold != 1.0) {
-            [self _lt_frameDraw:context pathBBox:pathBBox lines:lines lineOrigin:lineOrigin];
+            [self _lt_frameDraw:context pathBBox:pathBBox lines:lines lineOrigin:textFrame.lineOrigins];
         } else {
             CTFrameDraw(frame, context);
         }
@@ -483,21 +660,20 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		
 		CGContextRestoreGState(context);
 		//CGContextTranslateCTM(context, size.width+_columnSpace, 0);
-		free(lineOrigin);
 	}
 	
 }
 
 #pragma mark - Attachments
 
-- (void)_storeFrameOfAttachment:(CTFrameRef)frame to:(NSMutableArray*)dst
+- (void)_storeFrameOfAttachment:(LTTextFrame*)frame to:(NSMutableArray*)dst
 {
-	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
+	/*CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
 	CGFloat height = contentFrame.size.height;
     
     CGAffineTransform t = [self _transformForCurrentTextProgression];
-	
-	CFArrayRef lines = CTFrameGetLines(frame);
+	*/
+	CFArrayRef lines = CTFrameGetLines((CTFrameRef)frame.frame);
 	for (CFIndex i = 0; i < CFArrayGetCount(lines); i++) {
 		CTLineRef line = CFArrayGetValueAtIndex(lines, i);
 		CFArrayRef runs = CTLineGetGlyphRuns(line);
@@ -519,40 +695,46 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                  }
                  }
                  */
-                
+                CGRect attachFrame;
+                /*
                 const CGSize* adv = CTRunGetAdvancesPtr(run);
                 
-                 CGPoint p;
-                 CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &p);
+                CGPoint p;
+                CTFrameGetLineOrigins(frame.frame, CFRangeMake(i, 1), &p);
                 //p = CGPointApplyAffineTransform(p, t);
-                 float ascent;
-                 CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
+                float ascent;
+                CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
+                p.y += ascent;
                 if (_verticalText) {
                     //p.y += ascent;
-                    p = CGPointApplyAffineTransform(p, t);
+                    //p = CGPointApplyAffineTransform(p, t);
                 } else {
-                    p.y += ascent;
+                    //p.y += ascent;
                 }
                 
-                 NSLog(@"%d: line:%p count: %ld, ascent:%f, %@, p:%@", _verticalText, line, CTLineGetStringRange(line).length, ascent, NSStringFromCGSize(adv[0]), NSStringFromCGPoint(p) );
-                 //NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
+                NSLog(@"%d: line:%p count: %ld, ascent:%f, %@, p:%@", _verticalText, line, CTLineGetStringRange(line).length, ascent, NSStringFromCGSize(adv[0]), NSStringFromCGPoint(p) );
+                //NSLog(@"line:%p, %@", line, NSStringFromCGPoint(p));
                 
-                CGRect attachFrame;
+                
                 if (_verticalText) {
-                    attachFrame = CGRectMake(p.x, _frameSize.height - p.y, ascent, adv[0].width);
+                    //attachFrame = CGRectMake(p.x, _frameSize.height - p.y, ascent, adv[0].width);
+                    attachFrame = CGRectMake(p.x, (height - p.y), adv[0].width, ascent);
+                    attachFrame = CGRectApplyAffineTransform(attachFrame, t);
                 } else {
                     attachFrame = CGRectMake(p.x, (height - p.y), adv[0].width, ascent);
                 }
+                */
                 
+                attachFrame = [self _convertFrameForCurrentTextProgression: [frame frameWithGlyphRuns:[NSArray arrayWithObject:(id)run] onLine:line] ];
                 //attachFrame = CGRectApplyAffineTransform(attachFrame, t);
                 
-                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(id)attr
-                 ,@"attributes"
-                 ,[NSValue valueWithCGPoint:p]
-                 ,@"position"
-                 ,[NSValue valueWithCGRect: attachFrame]
-                 ,@"frame",nil];
-                 [dst addObject:dict];
+                
+                
+                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(id)attr
+                                      ,@"attributes"
+                                      ,[NSValue valueWithCGRect:attachFrame ]
+                                      ,@"frame",nil];
+                [dst addObject:dict];
                 
 			}
 		}
@@ -570,18 +752,12 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		[_attachments addObject:dstarrayPage];
 		for (LTTextFrame* frame in frames) {
 			NSMutableArray* dstArrayFrame = [NSMutableArray array];
-			[self _storeFrameOfAttachment:(CTFrameRef)frame.frame to:dstArrayFrame];
+			[self _storeFrameOfAttachment:frame to:dstArrayFrame];
 			[dstarrayPage addObject:dstArrayFrame];
 		}
 	}
 }
 
--(NSArray *)_attachmentsWithCTFrame:(CTFrameRef)frame
-{
-	NSMutableArray* array = [NSMutableArray array];
-	[self _storeFrameOfAttachment:frame to:array];
-	return array;
-}
 
 -(NSArray *)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
@@ -590,13 +766,51 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     }
     
     return [[[[_attachments objectAtIndex:index] objectAtIndex:col] copy] autorelease];
+}
+
+#pragma mark - Custom Attributes
+
+
+
+
+
+
+
+- (NSArray*)allValueForAttribute:(NSString*)attrKey atPageIndex:(NSUInteger)index column:(NSUInteger)col
+{
+    LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
+    NSRange colRange = [self rangeOfStringAtPageIndex:index column:col];
+    NSMutableArray* dst = [NSMutableArray array];
+
+    NSLog(@"page %d, col %d, key :%@-----%@", index, col, attrKey, NSStringFromRange(colRange));
+    [_attributedString enumerateAttribute:attrKey inRange:colRange options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
+        if (value) {
+            //NSRange fixedRange = range;
+            //fixedRange.location += colRange.location;
+            /*NSLog(@"%@: %@ - %@(%@)", @"", value, NSStringFromRange(range), NSStringFromRange(colRange));
+            NSArray* runs = [textFrame glyphRunsWithRange:range onLine:[[textFrame linesWithRange:range] lastObject]];
+            NSLog(@"---- %@\n", [_attributedString.string substringWithRange:fixedRange]);
+            for (id runObj in runs) {
+                CFRange range = CTRunGetStringRange((CTRunRef) runObj);
+                NSLog(@"----      %@", [_attributedString.string substringWithRange:NSMakeRange(range.location, range.length)]);
+            }*/
+            NSArray* frames = [textFrame framesWithRange:range];
+            for (NSValue* frameObj in frames) {
+                CGRect f = [frameObj CGRectValue];
+                
+                //[dst addObject:[NSValue valueWithCGRect:f]]; // original frame
+                f = [self _convertFrameForCurrentTextProgression:f];
+                
+                // convert frame to page view's coordinate
+                CGRect colFrame = [self columnFrameWithColumn:col];
+                f = CGRectOffset(f, colFrame.origin.x, colFrame.origin.y);
+                [dst addObject:[NSValue valueWithCGRect:f]];
+            }
+        }
+
+    }];
     
-	/*NSArray* frames = [_frames objectAtIndex:index];
-	if ([frames count] <= col) {
-		return nil;
-	}
-	return [self _attachmentsWithCTFrame:(CTFrameRef)[frames objectAtIndex:col]];
-     */
+    return dst;
 }
 
 

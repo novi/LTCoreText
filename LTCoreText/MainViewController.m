@@ -391,6 +391,22 @@
 
 -(void)textviewDidChangeScrollIndex:(LTTextView *)textView
 {
+    
+    NSUInteger pageIndex = 0;
+    LTTextLayouter* layouter = [textView _layouterAtScrollIndex:textView.scrollIndex pageIndexOnLayouter:&pageIndex];
+    
+    for (int i = 0; i < [layouter columnCountAtPageIndex:pageIndex]; i++) {
+        NSMutableArray* frames = [[layouter allValueForAttribute:@"DTTextAttachment" atPageIndex:pageIndex column:i] mutableCopy];
+        [frames addObjectsFromArray:[layouter allValueForAttribute:@"DTLink" atPageIndex:pageIndex column:i]];
+        for (NSValue* frameObj in frames) {
+            UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
+            view.userInteractionEnabled = NO;
+            view.backgroundColor = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
+            UIView* pageView = [textView pageViewAtScrollIndex:textView.scrollIndex];
+            [pageView addSubview:view];
+        }
+    }
+    
     [self _updateSlider];
 }
 
