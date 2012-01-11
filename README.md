@@ -3,7 +3,7 @@
 
 ![Screenshot 2](https://github.com/downloads/novi/LTCoreText/ss2.png)
 
-## 出来ること
+## できる
 
 * それなりに軽量
 * ページング
@@ -15,11 +15,29 @@
 * レイアウトモード、ページ送り方向(横・逆方向・縦)
 * 動的なページ挿入・削除
 * 非同期レイアウト処理
+* iOS 4以降対応
 
-## 出来ないこと
+## できない
+
 * AttributedString の作成 (サンプルでは [DTCoreText](https://github.com/Cocoanetics/DTCoreText) を使用)
 * 動的なフレームサイズの変更
 * ルビ
+* まだARC対応していません(デモAppのみARC対応)
+* デモアプリのiPhone対応(このライブラリ自体は対応)
+
+## 使いかた
+
+デモを実行するには [DTCoreText](https://github.com/Cocoanetics/DTCoreText) が必要です。
+別途cloneして用意してください。
+
+デモプロジェクトのファイルをそのままターゲットプロジェクトに追加します。
+デモプロジェクトを開いたときのグループのそれぞれの役割は次の通りです。
+
+* Base: ライブラリの基本 (必須)
+* Attachment/ImageView: イメージビューの埋め込み (オプション)
+* Demo: ライブラリの使いかたはここを参照してください。
+
+オプションのファイル群は必要が無ければ追加しなくても動作します。
 
 ## ライセンス
 MIT

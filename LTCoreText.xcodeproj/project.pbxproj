@@ -225,7 +225,7 @@
 				522202C714BC5FF50050D161 /* README.md */,
 				520EDE46149B3EC600DE253D /* DTCoreText - AttributedString */,
 				520EDE22149AFE4800DE253D /* Library */,
-				520EDDED149AFD5900DE253D /* LTCoreText */,
+				520EDDED149AFD5900DE253D /* Demo */,
 				520EDE11149AFD5A00DE253D /* LTCoreTextTests */,
 				520EDDE6149AFD5900DE253D /* Frameworks */,
 				520EDDE4149AFD5900DE253D /* Products */,
@@ -255,7 +255,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		520EDDED149AFD5900DE253D /* LTCoreText */ = {
+		520EDDED149AFD5900DE253D /* Demo */ = {
 			isa = PBXGroup;
 			children = (
 				520EDDF6149AFD5900DE253D /* AppDelegate.h */,
@@ -273,6 +273,7 @@
 				52D7072214BA8B210085C1FA /* OptionViewController.xib */,
 				520EDDEE149AFD5900DE253D /* Supporting Files */,
 			);
+			name = Demo;
 			path = LTCoreText;
 			sourceTree = "<group>";
 		};
@@ -678,7 +679,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LTCoreText/LTCoreText-Prefix.pch";
 				INFOPLIST_FILE = "LTCoreText/LTCoreText-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -689,7 +692,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LTCoreText/LTCoreText-Prefix.pch";
 				INFOPLIST_FILE = "LTCoreText/LTCoreText-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
