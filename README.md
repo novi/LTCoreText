@@ -22,6 +22,8 @@
 * AttributedString の作成 (サンプルでは [DTCoreText](https://github.com/Cocoanetics/DTCoreText) を使用)
 * 動的なフレームサイズの変更
 * ルビ
+* リンク等のイベント処理
+* テキスト選択
 * まだARC対応していません(デモAppのみARC対応)
 * デモアプリのiPhone対応(このライブラリ自体は対応)
 
