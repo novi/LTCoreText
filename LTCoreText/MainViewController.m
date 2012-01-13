@@ -326,9 +326,12 @@
         
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
         //_attrString = [[NSAttributedString alloc] initWithString:_attrString.string];
-        [attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:[defaults boolForKey:@"lColVText"]] range:NSMakeRange(0, attrString.length)];
-        //[_attrString addAttribute:(id)kCTLineBreakByWordWrapping value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
+        if ([defaults boolForKey:@"lColVText"]) {
+            [attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:[defaults boolForKey:@"lColVText"]] range:NSMakeRange(0, attrString.length)];
+        }
         
+        //[_attrString addAttribute:(id)kCTLineBreakByWordWrapping value:[NSNumber numberWithBool:YES] range:NSMakeRange(0, _attrString.length)];
+        NSString* string = [attrString string];
         LTTextLayouter* landscapeLayouter = [[LTTextLayouter alloc] initWithAttributedString:attrString
                                                                                    frameSize:CGSizeMake(1024, 768-20)
                                                                                      options:nil];
@@ -341,8 +344,13 @@
         [landscapeLayouter layoutIfNeeded];
         
         
-        [attrString removeAttribute:(id)kCTVerticalFormsAttributeName range:NSMakeRange(0, attrString.length)];
-        [attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:[defaults boolForKey:@"pColVText"]] range:NSMakeRange(0, attrString.length)];
+        if ([defaults boolForKey:@"lColVText"]) {
+            [attrString removeAttribute:(id)kCTVerticalFormsAttributeName range:NSMakeRange(0, attrString.length)];
+        }
+        if ([defaults boolForKey:@"pColVText"]) {
+            [attrString addAttribute:(id)kCTVerticalFormsAttributeName value:[NSNumber numberWithBool:[defaults boolForKey:@"pColVText"]] range:NSMakeRange(0, attrString.length)];
+        }
+        
         LTTextLayouter*  portraitLayouter = [[LTTextLayouter alloc] initWithAttributedString:attrString
                                                                                    frameSize:CGSizeMake(768, 1024-20)
                                                                                      options:nil];
@@ -406,6 +414,7 @@
         NSMutableArray* vals = [[layouter allValueForAttribute:@"DTTextAttachment" atPageIndex:pageIndex column:i] mutableCopy];
         [vals addObjectsFromArray:[layouter allValueForAttribute:@"DTLink" atPageIndex:pageIndex column:i]];
         
+        
         for (NSDictionary* dict in vals) {
             NSMutableArray* frames = [dict objectForKey:@"LTTextAttrFrames"];
             UIColor* color = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
@@ -414,8 +423,23 @@
                 view.tag = 99;
                 view.userInteractionEnabled = NO;
                 view.backgroundColor = color;
+
+#if LTDebugTestRuby          
+                UILabel* rubyLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, view.bounds.size.height, view.bounds.size.width)];
+                [view addSubview:rubyLabel];
+                rubyLabel.backgroundColor = [UIColor clearColor]; 
+                CGAffineTransform t = CGAffineTransformIdentity;
+                rubyLabel.transform = CGAffineTransformRotate(t, M_PI_2);
+                rubyLabel.font = [UIFont fontWithName:@"HiraMinProN-W3" size:12.0f];
+                rubyLabel.text = [layouter.attributedString.string substringWithRange:[[dict objectForKey:@"LTTextAttrRange"] rangeValue]];
+                [rubyLabel sizeToFit];
+                CGRect rf = rubyLabel.frame;
+                rubyLabel.center = CGPointMake(CGRectGetMidX(view.bounds)+rf.size.width*0.5, CGRectGetMidY(view.bounds));
+                rubyLabel.frame = CGRectIntegral(rubyLabel.frame);
                
                 [pageView addSubview:view];
+#endif
+                
             }
         }
     }

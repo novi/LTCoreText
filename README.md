@@ -19,9 +19,10 @@
 
 ## できない
 
-* AttributedString の作成 (サンプルでは [DTCoreText](https://github.com/Cocoanetics/DTCoreText) を使用)
+* `NSAttributedString` の作成 (デモAppでは [DTCoreText](https://github.com/Cocoanetics/DTCoreText) を使用)
 * 動的なフレームサイズの変更
 * ルビ
+    * ただし、カスタムビューでルビ用のラベルを貼り付けることは可能 (MainViewController参照)
 * リンク等のイベント処理
 * テキスト選択
 * まだARC対応していません(デモAppのみARC対応)
@@ -36,9 +37,9 @@
 デモプロジェクトのファイルをそのままターゲットプロジェクトに追加します。
 デモプロジェクトを開いたときのグループのそれぞれの役割は次の通りです。
 
-* Base: ライブラリの基本 (必須)
-* Attachment/ImageView: イメージビューの埋め込み (オプション)
-* Demo: ライブラリの使いかたはここを参照してください。
+* `Base`: ライブラリの基本 (必須)
+* `Attachment/ImageView`: イメージビューの埋め込み (オプション)
+* `Demo`: ライブラリの使いかたはここを参照してください。
 
 オプションのファイル群は必要が無ければ追加しなくても動作します。
 
