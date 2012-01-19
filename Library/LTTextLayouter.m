@@ -207,7 +207,6 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 }
 
 - (void)_createAttachmentsArray;
-- (NSArray*)_attachmentsWithCTFrame:(CTFrameRef)frame;
 - (void)_layoutFrame;
 
 

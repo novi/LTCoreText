@@ -29,7 +29,7 @@
 - (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count;
 - (CGPoint)_contentOffsetForIndex:(NSUInteger)index;
 - (CGSize)_contentSizeForCurrentLayoutMode;
-- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
+- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
 - (NSUInteger)_scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index;
 - (void)_recreateTextviews;
 
@@ -54,6 +54,7 @@
 		self.backgroundColor = [UIColor clearColor];
 		self.autoresizesSubviews = NO;
 		self.delegate = self;
+        self.scrollsToTop = NO;
 		
 		_layouters = [[NSMutableArray alloc] init];
 		_loadedViews = [[NSMutableArray alloc] init];
@@ -171,7 +172,7 @@
 -(void)stringIndex:(NSUInteger *)strIndex layouterIndex:(NSUInteger *)layouterIndex
 {
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	if (layouterIndex) {
 		*layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	}
@@ -216,7 +217,7 @@
 }
 */
 
-- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn
+- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn
 {
 	if (index+1 > _pageCount) {
 		return nil;
@@ -246,7 +247,7 @@
 	
 	// Get current layouter and page index
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* curLayouter = [self layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	
 	// Add attributed string and create layouter
 	[_layouters insertObject:layouter atIndex:index];
@@ -271,7 +272,7 @@
 	
 	// Get current layouter and page index
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* curLayouter = [self _layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* curLayouter = [self layouterAtScrollIndex:_currentScrollIndex pageIndexOnLayouter:&pageIndex];
 	
 	// Remove string and layouter
 	[_layouters removeObjectAtIndex:index];
@@ -364,7 +365,7 @@
 	}
 	
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	
 	/*for (LTTextPageView* pageview  in self.subviews) {
@@ -390,7 +391,7 @@
 	}
 	
 	NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
 	LTTextPageView* pageView = [[[LTTextPageView alloc] initWithFrame:frame layouter:layouter pageIndex:pageIndex] autorelease];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	
@@ -405,7 +406,7 @@
 -(UIView *)pageViewAtScrollIndex:(NSUInteger)index
 {
     NSUInteger pageIndex = 0;
-	LTTextLayouter* layouter = [self _layouterAtScrollIndex:index pageIndexOnLayouter:&pageIndex];
+	LTTextLayouter* layouter = [self layouterAtScrollIndex:index pageIndexOnLayouter:&pageIndex];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
     
 	id obj = [[_loadedViews objectAtIndex:layouterIndex] objectAtIndex:pageIndex];
@@ -505,6 +506,7 @@
 	
 	for (UIView* view in viewsToUse) {
 		[self addSubview:view];
+        [self sendSubviewToBack:view];
 	}
 	
 	//LTTextLogInfo(@"%@", self.subviews);
@@ -584,6 +586,9 @@
 -(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     _scrollIndexChanged = _currentScrollIndex;
+    if ([self.textViewDelegate respondsToSelector:@selector(textviewBeginDragging:)]) {
+        [self.textViewDelegate textviewBeginDragging:self];
+    }
 }
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate

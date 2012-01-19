@@ -401,7 +401,7 @@
 {
     
     NSUInteger pageIndex = 0;
-    LTTextLayouter* layouter = [textView _layouterAtScrollIndex:textView.scrollIndex pageIndexOnLayouter:&pageIndex];
+    LTTextLayouter* layouter = [textView layouterAtScrollIndex:textView.scrollIndex pageIndexOnLayouter:&pageIndex];
     UIView* pageView = [textView pageViewAtScrollIndex:textView.scrollIndex];
     
     for (UIView* view in [pageView.subviews reverseObjectEnumerator]) {

@@ -11,6 +11,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreText/CoreText.h>
 
+#import "LTTextView.h"
 #import "LTTextLayouter.h"
 #import "LTTextAttachment.h" // Protocol
 

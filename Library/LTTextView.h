@@ -19,7 +19,7 @@ enum {
 };
 
 
-@class LTTextView;
+@class LTTextView, LTTextLayouter;
 @protocol LTTextViewDelegate <NSObject>
 
 @required
@@ -30,6 +30,7 @@ enum {
 - (void)textview:(LTTextView*)textView didDrawPageIndex:(NSUInteger)pageIndex inContext:(CGContextRef)context;
 
 - (void)textviewDidChangeScrollIndex:(LTTextView*)textView;
+- (void)textviewBeginDragging:(LTTextView*)textView;
 
 @end
 
@@ -54,7 +55,7 @@ enum {
 - (void)redrawPageIfNeeded;
 
 
-- (LTTextLayouter*)_layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
+- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
 - (UIView*)pageViewAtScrollIndex:(NSUInteger)index; // if the page view not loaded, returns nil
 
 @end
