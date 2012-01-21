@@ -31,6 +31,7 @@ enum {
 
 - (void)textviewDidChangeScrollIndex:(LTTextView*)textView;
 - (void)textviewBeginDragging:(LTTextView*)textView;
+- (void)textviewDidScroll:(LTTextView*)textView;
 
 @end
 
@@ -45,17 +46,14 @@ enum {
 
 - (void)insertLayouter:(LTTextLayouter*)layouter atIndex:(NSUInteger)index;
 - (void)removeLayouterAtIndex:(NSUInteger)index;
+- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
 
 - (void)scrollToScrollIndex:(NSUInteger)scrollIndex animated:(BOOL)animated;
 - (void)scrollToLayouterPageIndex:(NSUInteger)pageIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated;
 - (void)scrollToStringIndex:(NSUInteger)strIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated;
 
-//- (void)stringIndex:(NSUInteger*)strIndex layouterIndex:(NSUInteger*)layouterIndex;
-
 - (void)redrawPageIfNeeded;
 
-
-- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
 - (UIView*)pageViewAtScrollIndex:(NSUInteger)index; // if the page view not loaded, returns nil
 
 @end

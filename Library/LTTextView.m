@@ -605,7 +605,9 @@
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    
+    if ([self.textViewDelegate respondsToSelector:@selector(textviewDidScroll:)]) {
+        [self.textViewDelegate textviewDidScroll:self];
+    }
 }
 
 @end

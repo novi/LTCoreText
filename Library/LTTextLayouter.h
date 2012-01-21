@@ -10,6 +10,11 @@
 #import "LTCoreText.h"
 
 
+NSString* const LTTextLayouterAttributeValueKey;
+NSString* const LTTextLayouterAttributeValueRangeKey;
+NSString* const LTTextLayouterAttributeValueFrameKey;
+
+
 // Primitive
 @interface LTTextLayouter : NSObject
 
@@ -28,20 +33,18 @@
 @property (nonatomic) BOOL useHyphenation; // attributedString must be hyphenated with (soft-hyphen, u0x00AD)
 
 - (NSUInteger)columnCountAtPageIndex:(NSUInteger)index;
+- (CGRect)columnFrameWithColumn:(NSUInteger)col;
+
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
 - (NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col;
 
-- (NSArray*)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
-
 - (void)layoutIfNeeded;
 
-
-- (CGRect)columnFrameWithColumn:(NSUInteger)col;
-- (void)drawInContext:(CGContextRef)context atPage:(NSUInteger)pageIndex;
-
-
-
+- (NSArray*)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col;
 - (NSArray*)allValueForAttribute:(NSString*)attrKey atPageIndex:(NSUInteger)index column:(NSUInteger)col;
+
+
+- (void)drawInContext:(CGContextRef)context atPage:(NSUInteger)pageIndex;
 
 @end
 

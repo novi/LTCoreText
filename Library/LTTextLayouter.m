@@ -9,6 +9,9 @@
 
 #import "LTTextLayouter.h"
 
+NSString* const LTTextLayouterAttributeValueKey = @"value";
+NSString* const LTTextLayouterAttributeValueRangeKey = @"range";
+NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
 
 @interface LTTextFrame : NSObject
 {
@@ -372,7 +375,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         
 		CGRect contentFrame = [self columnFrameWithColumn:currentFrames.count];
         
-        NSLog(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
+        LTTextLogInfo(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
         
         CGPathRef path;
         CGRect frameBounds;
@@ -788,7 +791,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     NSRange colRange = [self rangeOfStringAtPageIndex:index column:col];
     NSMutableArray* dst = [NSMutableArray array];
 
-    NSLog(@"page %d, col %d, key :%@-----%@", index, col, attrKey, NSStringFromRange(colRange));
+    LTTextLogInfo(@"page %d, col %d, key :%@-----%@", index, col, attrKey, NSStringFromRange(colRange));
     [_attributedString enumerateAttribute:attrKey inRange:colRange options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
         if (value) {
             //NSRange fixedRange = range;
@@ -802,8 +805,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
             }*/
             
             
-            NSMutableDictionary* result = [NSMutableDictionary dictionaryWithObject:value forKey:@"LTTextAttrValue"];
-            [result setObject:[NSValue valueWithRange:range] forKey:@"LTTextAttrRange"];
+            NSMutableDictionary* result = [NSMutableDictionary dictionaryWithObject:value forKey:LTTextLayouterAttributeValueKey];
+            [result setObject:[NSValue valueWithRange:range] forKey:LTTextLayouterAttributeValueRangeKey];
             
             NSArray* frames = [textFrame framesWithRange:range];
             NSMutableArray* dstFrames = [NSMutableArray arrayWithCapacity:frames.count];
@@ -820,7 +823,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 [dstFrames addObject:[NSValue valueWithCGRect:f]];
             }
             
-            [result setObject:dstFrames forKey:@"LTTextAttrFrames"];
+            [result setObject:dstFrames forKey:LTTextLayouterAttributeValueFrameKey];
             [dst addObject:result];
         }
 
