@@ -273,11 +273,21 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 -(NSUInteger)columnCountAtPageIndex:(NSUInteger)index
 {
+    if (index >= _frames.count) {
+        return 0;
+    }
     return ((NSArray*)[_frames objectAtIndex:index]).count;
 }
 
 - (NSRange)rangeOfStringAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
+    if (index >= _frames.count) {
+        return NSMakeRange(0, 0);
+    }
+    if (col >= [self columnCountAtPageIndex:index]) {
+        return NSMakeRange(0, 0);
+    }
+    
     LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
 	CTFrameRef frame = (CTFrameRef)textFrame.frame;
 	CFRange range = CTFrameGetVisibleStringRange(frame);
@@ -376,6 +386,10 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		CGRect contentFrame = [self columnFrameWithColumn:currentFrames.count];
         
         LTTextLogInfo(@"page:%d, col:%d, frame:%@", _frames.count, currentFrames.count, NSStringFromCGRect(contentFrame));
+        if (_frames.count > 1000) {
+            LTTextLogError(@"has too many page aborted");
+            break;
+        }
         
         CGPathRef path;
         CGRect frameBounds;
