@@ -416,7 +416,7 @@
         
         
         for (NSDictionary* dict in vals) {
-            NSMutableArray* frames = [dict objectForKey:@"LTTextAttrFrames"];
+            NSMutableArray* frames = [dict objectForKey:LTTextLayouterAttributeValueFrameKey];
             UIColor* color = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
             for (NSValue* frameObj in frames) {
                 UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
@@ -431,7 +431,7 @@
                 CGAffineTransform t = CGAffineTransformIdentity;
                 rubyLabel.transform = CGAffineTransformRotate(t, M_PI_2);
                 rubyLabel.font = [UIFont fontWithName:@"HiraMinProN-W3" size:12.0f];
-                rubyLabel.text = [layouter.attributedString.string substringWithRange:[[dict objectForKey:@"LTTextAttrRange"] rangeValue]];
+                rubyLabel.text = [layouter.attributedString.string substringWithRange:[[dict objectForKey:LTTextLayouterAttributeValueRangeKey] rangeValue]];
                 [rubyLabel sizeToFit];
                 CGRect rf = rubyLabel.frame;
                 rubyLabel.center = CGPointMake(CGRectGetMidX(view.bounds)+rf.size.width*0.5, CGRectGetMidY(view.bounds));
