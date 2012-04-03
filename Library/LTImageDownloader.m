@@ -62,6 +62,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 		self.downloadQueue = [[[NSOperationQueue alloc] init] autorelease];
 		_downloadQueue.maxConcurrentOperationCount = 3;
 		_imageCache = [[NSCache alloc] init];
+        _imageCache.countLimit = 30;
     }
     
     return self;

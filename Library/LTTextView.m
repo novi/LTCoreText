@@ -119,7 +119,7 @@
         _layoutMode = LTTextViewLayoutModeNormal;
     }
     
-    NSLog(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
+    LTTextLogInfo(@"%s: current scroll index: %d", __func__, _currentScrollIndex);
     
     _layoutModeChanged = YES;
     
@@ -430,7 +430,7 @@
 - (void)_recreateTextviews
 {
 	if (self.hidden || self.alpha == 0.0) {
-		NSLog(@"TextView: %@ is not appears.", self);
+		LTTextLogError(@"TextView: %@ is not appears.", self);
 		return;
 	}
 	
@@ -463,7 +463,7 @@
 			[scrollIndexToUse addObject:[NSNumber numberWithUnsignedInteger:index]];
 		}
 	}
-	NSLog(@"scrollIndexToUse: %@", scrollIndexToUse);
+	LTTextLogInfo(@"scrollIndexToUse: %@", scrollIndexToUse);
 	
 	// Remove loaded view if not needed
 	for (NSUInteger i = 0; i < _loadedViews.count; i++) {

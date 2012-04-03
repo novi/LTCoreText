@@ -21,6 +21,8 @@ typedef void (^LTImageDownloadCallback)(UIImage* image, NSError* error);
 + (NSOperationQueue*)currentOperationQueue;
 
 +(id)sharedInstance;
+
+// imageBounds= CGSizeZero returns original image, no resize, no border
 - (void)downloadImageWithURL:(NSURL*)url imageBounds:(CGSize)bounds options:(NSDictionary*)options completion:(LTImageDownloadCallback)comp;
 
 @end

@@ -16,12 +16,18 @@
 #import "LTTextAttachment.h" // Protocol
 
 
-#define LTTextLogInfo NSLog
-#define LTTextLogError NSLog
+#if DEBUG
+    #warning Debug log enabled
+    #define LTTextLogInfo NSLog
+    #define LTTextLogError NSLog 
+#else
+    #define LTTextLogInfo(...)  { do {} while (0);}
+    #define LTTextLogError(...)  { do {} while (0);}
+#endif
 
 #define LTTextRelease(obj) {if (obj) { [(obj) release]; obj = nil; } }
 #define LTTextCFRelease(obj) { if (obj) { CFRelease(obj); } }
-#define LTTextMethodDebugLog() {NSLog(@"%s,%@", __func__, self);}
+#define LTTextMethodDebugLog() {LTTextLogInfo(@"%s,%@", __func__, self);}
 
 
 #define LTTextViewBackgroundColorDebug (0)
