@@ -9,9 +9,7 @@
 
 #import "MainViewController.h"
 #import "LTTextView.h"
-#import "NSAttributedString+HTML.h"
 #import "LTTextImageView.h"
-#import "DTTextAttachment.h"
 #import "OptionViewController.h"
 
 @interface MainViewController()
