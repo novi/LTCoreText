@@ -138,6 +138,7 @@
 		522202C914BC67DE0050D161 /* iphone.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = iphone.html; sourceTree = "<group>"; };
 		52784EED1537C51300745CF6 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		52784EEF1537C5CD00745CF6 /* DTCoreText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DTCoreText.xcodeproj; path = DTCoreText/DTCoreText.xcodeproj; sourceTree = SOURCE_ROOT; };
+		52B4A1DD15384D930036709E /* CGUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGUtils.h; sourceTree = "<group>"; };
 		52D7070B14BA72130085C1FA /* 1935_19925.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = 1935_19925.html; sourceTree = "<group>"; };
 		52D7071614BA80450085C1FA /* DownloadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadViewController.h; sourceTree = "<group>"; };
 		52D7071714BA80450085C1FA /* DownloadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadViewController.m; sourceTree = "<group>"; };
@@ -317,6 +318,7 @@
 		52784E4C1537C4A500745CF6 /* DTCoreText - git submodule */ = {
 			isa = PBXGroup;
 			children = (
+				52B4A1DD15384D930036709E /* CGUtils.h */,
 				52784EEF1537C5CD00745CF6 /* DTCoreText.xcodeproj */,
 			);
 			name = "DTCoreText - git submodule";
@@ -381,7 +383,7 @@
 		520EDDDA149AFD5900DE253D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 520EDDDD149AFD5900DE253D /* Build configuration list for PBXProject "LTCoreText" */;
 			compatibilityVersion = "Xcode 3.2";

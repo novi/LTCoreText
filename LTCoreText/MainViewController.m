@@ -380,7 +380,7 @@
 
 -(UIView *)textview:(LTTextView *)textView viewForRunDictionary:(NSDictionary *)dict
 {
-    DTTextAttachment* attachment = [dict objectForKey:@"DTTextAttachment"];
+    DTTextAttachment* attachment = [dict objectForKey:NSAttachmentAttributeName];
     //NSLog(@"run dict: %@", dict);
     
     /*UIView* view = [[UIView alloc] initWithFrame:CGRectZero];
