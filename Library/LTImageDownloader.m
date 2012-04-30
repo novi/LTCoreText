@@ -91,7 +91,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 		targetSize.width += borderWidth*2;
 	}
 	
-	UIGraphicsBeginImageContext(targetSize);
+	UIGraphicsBeginImageContextWithOptions(targetSize, NO, 0.0);
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	
 	CGContextSetRGBFillColor(context, 0, 0, 0, 0);
