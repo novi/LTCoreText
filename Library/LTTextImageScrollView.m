@@ -56,6 +56,11 @@
 		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tapped:)];
 		[self addGestureRecognizer:tapgr];
 		[tapgr release];
+        
+        UITapGestureRecognizer* doubleTapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_doubleTapped:)];
+        doubleTapgr.numberOfTapsRequired = 2;
+        [self addGestureRecognizer:doubleTapgr];
+        [doubleTapgr release];
 		
 		//[self _centeringImage];
     }
@@ -65,6 +70,15 @@
 - (void)_tapped:(UITapGestureRecognizer*)tapgr
 {
 	[[UIApplication sharedApplication] sendAction:@selector(lt_zoomedImageViewClose:) to:nil from:self forEvent:nil];
+}
+
+- (void)_doubleTapped:(UITapGestureRecognizer*)tapgr
+{
+    if (self.zoomScale != 1.0) {
+        [self setZoomScale:1.0 animated:YES];
+    } else {
+        [self setZoomScale:2.0 animated:YES];
+    }
 }
 
 - (void)dealloc
