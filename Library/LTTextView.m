@@ -26,13 +26,6 @@
     NSUInteger _scrollIndexChanged;
 }
 
-- (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count;
-- (CGPoint)_contentOffsetForIndex:(NSUInteger)index;
-- (CGSize)_contentSizeForCurrentLayoutMode;
-- (LTTextLayouter*)layouterAtScrollIndex:(NSUInteger)index pageIndexOnLayouter:(NSUInteger*)indexOn;
-- (NSUInteger)_scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index;
-- (void)_recreateTextviews;
-
 @end
 
 @implementation LTTextView
@@ -74,7 +67,7 @@
 
 
 
-- (void)_calculatePageCount
+- (void)calculatePageCount
 {
 	NSUInteger count = 0;
 	for (LTTextLayouter* layouter in _layouters) {
@@ -85,7 +78,7 @@
 
 -(void)redrawPageIfNeeded
 {
-	[self _recreateTextviews];
+	[self recreateTextviews];
 }
 
 #pragma mark - Accessory Method
@@ -137,9 +130,9 @@
     }
     
     _currentScrollIndex = pageIndex;
-    [self setContentOffset:[self _contentOffsetForIndex:_currentScrollIndex] animated:animated];
+    [self setContentOffset:[self contentOffsetForIndex:_currentScrollIndex] animated:animated];
     
-    [self _recreateTextviews];
+    [self recreateTextviews];
 }
 
 -(void)scrollToLayouterPageIndex:(NSUInteger)pageIndex onLayouterAtIndex:(NSUInteger)layouterIndex animated:(BOOL)animated
@@ -148,7 +141,7 @@
 		return;
 	}
     
-    NSUInteger scrollIndex = [self _scrollIndexOfLayouter:[_layouters objectAtIndex:layouterIndex]
+    NSUInteger scrollIndex = [self scrollIndexOfLayouter:[_layouters objectAtIndex:layouterIndex]
                                               atPageIndex:pageIndex];
 	
     [self scrollToScrollIndex:scrollIndex animated:animated];
@@ -182,7 +175,7 @@
 	}
 }
 
-- (NSUInteger)_scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index
+- (NSUInteger)scrollIndexOfLayouter:(LTTextLayouter*)layouterA atPageIndex:(NSUInteger)index
 {
 	NSUInteger count = 0;
 	BOOL found = NO;
@@ -251,16 +244,16 @@
 	
 	// Add attributed string and create layouter
 	[_layouters insertObject:layouter atIndex:index];
-	[_loadedViews insertObject:[self _loadedViewsArrayCount:layouter.pageCount] atIndex:index];
+	[_loadedViews insertObject:[self loadedViewsArrayCount:layouter.pageCount] atIndex:index];
 	
-	[self _calculatePageCount];
+	[self calculatePageCount];
 	
 	
-	self.contentSize = [self _contentSizeForCurrentLayoutMode];
+	self.contentSize = [self contentSizeForCurrentLayoutMode];
 	
-	[self _recreateTextviews];
+	[self recreateTextviews];
 	
-	self.contentOffset = [self _contentOffsetForIndex:[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
+	self.contentOffset = [self contentOffsetForIndex:[self scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
 	self.scrollEnabled = YES;
 }
 
@@ -278,19 +271,19 @@
 	[_layouters removeObjectAtIndex:index];
 	[_loadedViews removeObjectAtIndex:index];
 	
-	[self _calculatePageCount];
+	[self calculatePageCount];
 	
-	self.contentSize = [self _contentSizeForCurrentLayoutMode];
+	self.contentSize = [self contentSizeForCurrentLayoutMode];
 	
-	[self _recreateTextviews];
+	[self recreateTextviews];
 	
-	self.contentOffset = [self _contentOffsetForIndex:[self _scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
+	self.contentOffset = [self contentOffsetForIndex:[self scrollIndexOfLayouter:curLayouter atPageIndex:pageIndex]];
 	self.scrollEnabled = YES;
 }
 
 #pragma mark - Content frames
 
-- (CGSize)_contentSizeForCurrentLayoutMode
+- (CGSize)contentSizeForCurrentLayoutMode
 {
     CGRect bounds = self.bounds;
     
@@ -304,7 +297,7 @@
     return CGSizeZero;
 }
 
-- (CGPoint)_contentOffsetForIndex:(NSUInteger)index
+- (CGPoint)contentOffsetForIndex:(NSUInteger)index
 {
     CGRect bounds = self.bounds;
     
@@ -319,7 +312,7 @@
     return CGPointZero;
 }
 
-- (NSUInteger)_currentScrollIndex
+- (NSUInteger)currentScrollIndex
 {
 	CGFloat pageWidth = self.bounds.size.width;
     CGFloat pageHeight = self.bounds.size.height;
@@ -337,7 +330,7 @@
 	return pageIndex;
 }
 
-- (CGRect)_frameWithScrollIndex:(NSUInteger)index
+- (CGRect)frameWithScrollIndex:(NSUInteger)index
 {
 	if (index < _pageCount) {
 		CGRect bounds = self.bounds;
@@ -357,9 +350,9 @@
 
 #pragma mark - Page Views
 
-- (UIView*)_hasViewWithScrollIndex:(NSUInteger)scrollIndex
+- (UIView*)hasViewWithScrollIndex:(NSUInteger)scrollIndex
 {
-	CGRect frame = [self _frameWithScrollIndex:scrollIndex];
+	CGRect frame = [self frameWithScrollIndex:scrollIndex];
 	if (CGRectEqualToRect(frame, CGRectZero)) {
 		return nil;
 	}
@@ -383,9 +376,9 @@
 	return obj;
 }
 
-- (UIView*)_viewWithScrollIndex:(NSUInteger)scrollIndex
+- (UIView*)viewWithScrollIndex:(NSUInteger)scrollIndex
 {
-	CGRect frame = [self _frameWithScrollIndex:scrollIndex];
+	CGRect frame = [self frameWithScrollIndex:scrollIndex];
 	if (CGRectEqualToRect(frame, CGRectZero)) {
 		return nil;
 	}
@@ -398,7 +391,7 @@
 	NSMutableArray* loadedViews = [_loadedViews objectAtIndex:layouterIndex];
 	[loadedViews replaceObjectAtIndex:pageIndex withObject:pageView];
 	
-	LTTextLogInfo(@"created view layouter:%d, page:%d, scroll:%d", layouterIndex, pageIndex, [self _scrollIndexOfLayouter:layouter atPageIndex:pageIndex]);
+	LTTextLogInfo(@"created view layouter:%d, page:%d, scroll:%d", layouterIndex, pageIndex, [self scrollIndexOfLayouter:layouter atPageIndex:pageIndex]);
 	
 	return pageView;
 }
@@ -417,7 +410,7 @@
     return (UIView*)obj;
 }
 
-- (NSMutableArray*)_loadedViewsArrayCount:(NSUInteger)count
+- (NSMutableArray*)loadedViewsArrayCount:(NSUInteger)count
 {
 	NSMutableArray* array = [NSMutableArray arrayWithCapacity:count];
 	for (NSUInteger i = 0; i < count; i++) {
@@ -427,7 +420,7 @@
 	return array;
 }
 
-- (void)_recreateTextviews
+- (void)recreateTextviews
 {
 	if (self.hidden || self.alpha == 0.0) {
 		LTTextLogError(@"TextView: %@ is not appears.", self);
@@ -442,10 +435,10 @@
 	for (int i = 0; i < 3; i++) {
 		NSUInteger index = (_currentScrollIndex+i-1);
 		if (index < _pageCount) {
-			UIView* pageview = [self _hasViewWithScrollIndex:index];
+			UIView* pageview = [self hasViewWithScrollIndex:index];
 			if ( ! pageview) {
 				// Create new view
-				pageview = [self _viewWithScrollIndex:index];
+				pageview = [self viewWithScrollIndex:index];
 //				[self addSubview:pageview];
 			} else {
 				[pageview removeFromSuperview];
@@ -471,7 +464,7 @@
 		for (NSUInteger pagei = 0; pagei < [views count]; pagei++) {
 			UIView* pageview = [views objectAtIndex:pagei];
 			if ([pageview isKindOfClass:[UIView class]]) {
-				NSUInteger scrollIndex = [self _scrollIndexOfLayouter:[_layouters objectAtIndex:i] atPageIndex:pagei];
+				NSUInteger scrollIndex = [self scrollIndexOfLayouter:[_layouters objectAtIndex:i] atPageIndex:pagei];
 				//NSNumber* scrollIndexnum = [NSNumber numberWithUnsignedInteger:scrollIndex];
 				BOOL notfound = YES;
 				for (NSNumber* num in scrollIndexToUse) {
@@ -512,23 +505,23 @@
 	//LTTextLogInfo(@"%@", self.subviews);
 }
 
--(void)_layoutPages
+-(void)layoutPages
 {
-    _currentScrollIndex = [self _currentScrollIndex];
+    _currentScrollIndex = [self currentScrollIndex];
     
     [self stringIndex:&_currentState.strIndex layouterIndex:&_currentState.attrIndex];
     
     LTTextLogInfo(@"scroll index changed, attr:%u, str:%u, decelerating: %d", _currentState.attrIndex, _currentState.strIndex, self.isDecelerating);
     
-    [self _recreateTextviews];
-    LTTextPageView* pageView = (id)[self _hasViewWithScrollIndex:_currentScrollIndex];
+    [self recreateTextviews];
+    LTTextPageView* pageView = (id)[self hasViewWithScrollIndex:_currentScrollIndex];
     [pageView showAttachmentsIfNeeded];
     
     
 }
 
 
-- (void)_framesizeChanged
+- (void)framesizeChanged
 {
 	_framesizeChanged = NO;
     
@@ -539,8 +532,8 @@
 		}
 	}
 	
-	[self _calculatePageCount];
-	self.contentSize = [self _contentSizeForCurrentLayoutMode];
+	[self calculatePageCount];
+	self.contentSize = [self contentSizeForCurrentLayoutMode];
 	
 	//self.contentOffset = CGPointMake(bounds.size.width*[self _scrollIndexOfLayouter:_currentPageState._layouter atPageIndex:_currentPageState._pageIndex], 0);
 	
@@ -549,7 +542,7 @@
 	
     if (_layoutModeChanged) {
         _layoutModeChanged = NO;
-        self.contentOffset = [self _contentOffsetForIndex:_currentScrollIndex];
+        self.contentOffset = [self contentOffsetForIndex:_currentScrollIndex];
     } else {
         //[self scrollToStringIndex:_currentState.strIndex onLayouterAtIndex:_currentState.attrIndex animated:NO];
     }
@@ -562,11 +555,11 @@
 	
 	BOOL framesizeChanged = _framesizeChanged;
 	if (_framesizeChanged) {
-		[self _framesizeChanged];
+		[self framesizeChanged];
 	}
 	
-	if ( ([self _currentScrollIndex] != _currentScrollIndex) || framesizeChanged) {
-        [self _layoutPages];
+	if ( ([self currentScrollIndex] != _currentScrollIndex) || framesizeChanged) {
+        [self layoutPages];
 	}
 	
 	
@@ -574,7 +567,7 @@
 
 #pragma mark - Scroll View Delegate
 
-- (void)_notifyScrollIndexChangingIfChanged
+- (void)notifyScrollIndexChangingIfChanged
 {
     if (_scrollIndexChanged != _currentScrollIndex) {
         if ([self.textViewDelegate respondsToSelector:@selector(textviewDidChangeScrollIndex:)]) {
@@ -594,13 +587,13 @@
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (!decelerate) {
-        [self _notifyScrollIndexChangingIfChanged];
+        [self notifyScrollIndexChangingIfChanged];
     }
 }
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [self _notifyScrollIndexChangingIfChanged];
+    [self notifyScrollIndexChangingIfChanged];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView

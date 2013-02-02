@@ -32,7 +32,7 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 		overlayView.tag = kLTTextImageViewOverlayViewTag;
 		[self addSubview:overlayView];
 		
-		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tapped:)];
+		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 		[overlayView addGestureRecognizer:tapgr];
 		
 		[tapgr release];
@@ -41,20 +41,20 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
     return self;
 }
 
-- (void)_setHighlightedOff
+- (void)setHighlightedOff
 {
 	UIView* overlayView = [self viewWithTag:kLTTextImageViewOverlayViewTag];
 	overlayView.backgroundColor = [UIColor clearColor];
 }
 
-- (void)_tapped:(UITapGestureRecognizer*)gr
+- (void)tapped:(UITapGestureRecognizer*)gr
 {
 	dispatch_async(dispatch_get_main_queue(), ^(void) {
 		UIView* overlayView = [self viewWithTag:kLTTextImageViewOverlayViewTag];
 		overlayView.backgroundColor = [UIColor colorWithWhite:0.05 alpha:0.5];
 	});
 	
-	[self performSelector:@selector(_setHighlightedOff) withObject:nil afterDelay:0.25];
+	[self performSelector:@selector(setHighlightedOff) withObject:nil afterDelay:0.25];
 	
 	[[UIApplication sharedApplication] sendAction:@selector(lt_imageSelected:) to:nil from:self forEvent:nil];
 }

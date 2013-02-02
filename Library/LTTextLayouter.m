@@ -25,9 +25,6 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
 @property (nonatomic) CGPoint* lineOrigins;
 @property (nonatomic) BOOL verticalLayout;
 
-- (NSUInteger)indexOfLine:(CTLineRef)line;
-
-
 @end
 
 @implementation LTTextFrame
@@ -209,10 +206,6 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     BOOL _verticalText;    
 }
 
-- (void)_createAttachmentsArray;
-- (void)_layoutFrame;
-
-
 
 @end
 
@@ -298,7 +291,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 -(NSUInteger)pageIndexOfStringIndex:(NSUInteger)index columnIndex:(NSUInteger*)col
 {
 	if (_needFrameLayout) {
-		[self _layoutFrame];
+		[self layoutFrame];
 	}
 	
 	if (index+1 > [_attributedString length]) {
@@ -326,7 +319,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 #pragma mark - Layout
 
-- (CGSize)_columnSize
+- (CGSize)columnSize
 {
     CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
     
@@ -348,14 +341,14 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
     
     if (_verticalText) {
-        CGFloat height = [self _columnSize].height;
+        CGFloat height = [self columnSize].height;
         
         contentFrame.size.height = height;
         contentFrame = CGRectOffset(contentFrame, 0 , height*col + _columnSpace*col);
         return contentFrame;
     }
     
-    CGFloat width = [self _columnSize].width;
+    CGFloat width = [self columnSize].width;
     
     contentFrame.size.width = width;
     contentFrame = CGRectOffset(contentFrame, width*col + _columnSpace*col , 0);
@@ -364,7 +357,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 
 
-- (void)_layoutFrame
+- (void)layoutFrame
 {
 	_needFrameLayout = NO;
 	LTTextRelease(_frames);
@@ -439,7 +432,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		[_frames addObject:currentFrames];
 	}
 	
-	[self _createAttachmentsArray];
+	[self createAttachmentsArray];
 	
 	LTTextLogInfo(@"page count %d", [_frames count]);
 }
@@ -447,7 +440,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 -(void)layoutIfNeeded
 {
 	if (_needFrameLayout) {
-		[self _layoutFrame];
+		[self layoutFrame];
 	}
 }
 
@@ -468,7 +461,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 -(NSUInteger)pageCount
 {
 	if (_needFrameLayout) {
-		[self _layoutFrame];
+		[self layoutFrame];
 	}
 	return _frames.count;
 }
@@ -516,7 +509,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 #pragma mark - Drawing
 
-- (void)_lt_frameDraw:(CGContextRef)context pathBBox:(CGRect)pathBBox lines:(CFArrayRef)lines lineOrigin:(CGPoint *)lineOrigin
+- (void)lt_frameDraw:(CGContextRef)context pathBBox:(CGRect)pathBBox lines:(CFArrayRef)lines lineOrigin:(CGPoint *)lineOrigin
 {
     LTTextLogInfo(@"using %s", __FUNCTION__);
     
@@ -587,7 +580,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     }
 }
 
-- (CGAffineTransform)_transformForCurrentTextProgression
+- (CGAffineTransform)transformForCurrentTextProgression
 {
     if (!_verticalText) {
         return CGAffineTransformIdentity;
@@ -602,10 +595,10 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     return t;
 }
 
-- (CGRect)_convertFrameForCurrentTextProgression:(CGRect)frame
+- (CGRect)convertFrameForCurrentTextProgression:(CGRect)frame
 {
     if (_verticalText) {
-        frame = CGRectApplyAffineTransform(frame, [self _transformForCurrentTextProgression]);
+        frame = CGRectApplyAffineTransform(frame, [self transformForCurrentTextProgression]);
         return frame;
     } else {
         return frame;
@@ -615,7 +608,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 -(void)drawInContext:(CGContextRef)context atPage:(NSUInteger)page
 {
 	if (_needFrameLayout) {
-		[self _layoutFrame];
+		[self layoutFrame];
 	}
 	
 	if (page >= self.pageCount) {
@@ -656,7 +649,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         }
 		
         if (useHyphenation || justifyThreshold != 1.0) {
-            [self _lt_frameDraw:context pathBBox:pathBBox lines:lines lineOrigin:textFrame.lineOrigins];
+            [self lt_frameDraw:context pathBBox:pathBBox lines:lines lineOrigin:textFrame.lineOrigins];
         } else {
             CTFrameDraw(frame, context);
         }
@@ -682,7 +675,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 #pragma mark - Attachments
 
-- (void)_storeFrameOfAttachment:(LTTextFrame*)frame to:(NSMutableArray*)dst
+- (void)storeFrameOfAttachment:(LTTextFrame*)frame to:(NSMutableArray*)dst
 {
 	/*CGRect contentFrame = UIEdgeInsetsInsetRect(CGRectMake(0, 0, _frameSize.width, _frameSize.height), _contentInset);
 	CGFloat height = contentFrame.size.height;
@@ -741,7 +734,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 }
                 */
                 
-                attachFrame = [self _convertFrameForCurrentTextProgression: [frame frameWithGlyphRuns:[NSArray arrayWithObject:(id)run] onLine:line] ];
+                attachFrame = [self convertFrameForCurrentTextProgression: [frame frameWithGlyphRuns:[NSArray arrayWithObject:(id)run] onLine:line] ];
                 //attachFrame = CGRectApplyAffineTransform(attachFrame, t);
                 
                 
@@ -757,7 +750,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 	}
 }
 
-- (void)_createAttachmentsArray
+- (void)createAttachmentsArray
 {
 	LTTextRelease(_attachments);
 	_attachments = [[NSMutableArray alloc] init];
@@ -780,7 +773,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 -(NSArray *)attachmentsAtPageIndex:(NSUInteger)index column:(NSUInteger)col
 {
     if (_needFrameLayout) {
-        [self _layoutFrame];
+        [self layoutFrame];
     }
     
     
@@ -788,7 +781,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     if ([attachments isKindOfClass:[NSNull class]]) {
         attachments = [NSMutableArray array];
         LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
-        [self _storeFrameOfAttachment:textFrame to:attachments];
+        [self storeFrameOfAttachment:textFrame to:attachments];
         [[_attachments objectAtIndex:index] replaceObjectAtIndex:col withObject:attachments];
         LTTextLogInfo(@"Attachment not created, page=%d, col=%d, created count=%d", index, col, attachments.count);
     }
@@ -829,7 +822,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 CGRect f = [frameObj CGRectValue];
                 
                 //[dst addObject:[NSValue valueWithCGRect:f]]; // original frame
-                f = [self _convertFrameForCurrentTextProgression:f];
+                f = [self convertFrameForCurrentTextProgression:f];
                 
                 // convert frame to page view's coordinate
                 CGRect colFrame = [self columnFrameWithColumn:col];

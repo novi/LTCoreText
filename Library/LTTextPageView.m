@@ -31,7 +31,7 @@
 @synthesize index = _index;
 @synthesize layouter = _layouter;
 
-- (LTTextView*)_textView
+- (LTTextView*)textView
 {
     return (id)self.superview;
 }
@@ -51,7 +51,7 @@
 		_isNeedShowAttachments = YES;
 		//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_imageDownloaded:) name:@"DTLazyImageViewDidFinishLoading" object:nil];
 		
-		UITapGestureRecognizer* gr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_viewTapped:)];
+		UITapGestureRecognizer* gr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapped:)];
 		//[self addGestureRecognizer:gr];
 		[gr release];
     }
@@ -63,7 +63,7 @@
 	return [NSString stringWithFormat:@"%@, %u: %@", [super description], _index, _layouter];
 }
 
--(void)_viewTapped:(UITapGestureRecognizer*)gr
+-(void)viewTapped:(UITapGestureRecognizer*)gr
 {
 	[[UIApplication sharedApplication] sendAction:@selector(lt_textPageViewTapped:) to:nil from:self forEvent:nil];
 }
@@ -133,7 +133,7 @@
 		return;
 	}
     
-    LTTextView* textView = [self _textView];
+    LTTextView* textView = [self textView];
     
     NSUInteger colCount = [_layouter columnCountAtPageIndex:_index];
     for (NSUInteger i = 0; i < colCount; i++) {
@@ -245,7 +245,7 @@
     CGContextSetFillColorWithColor(context, [_layouter.backgroundColor CGColor]);
     CGContextFillRect(context, self.bounds);
     
-    LTTextView* textView = [self _textView];
+    LTTextView* textView = [self textView];
     if ([textView.textViewDelegate respondsToSelector:@selector(textview:willDrawPageIndex:inContext:)]) {
         [textView.textViewDelegate textview:textView willDrawPageIndex:_index inContext:context];
         CGContextSetTextMatrix(context, CGAffineTransformIdentity);

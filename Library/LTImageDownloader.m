@@ -68,7 +68,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
     return self;
 }
 
-- (UIImage*)_resizeImage:(UIImage*)image bounds:(CGSize)bounds options:(NSDictionary*)options
+- (UIImage*)resizeImage:(UIImage*)image bounds:(CGSize)bounds options:(NSDictionary*)options
 {
 	if (CGSizeEqualToSize(bounds, CGSizeZero)) {
 		return image;
@@ -123,7 +123,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
 		NSData* data = [_imageCache objectForKey:cacheKey];
 		if (data) {
 			UIImage* srcImage = [UIImage imageWithData:data];
-			UIImage* image = [self _resizeImage:srcImage bounds:bounds options:options];
+			UIImage* image = [self resizeImage:srcImage bounds:bounds options:options];
 			dispatch_async(dispatch_get_main_queue(), ^(void) {
 				comp(image, nil);
 			});
@@ -140,7 +140,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
                                            [_imageCache setObject:data forKey:cacheKey];
                                            
                                            UIImage* srcImage = [UIImage imageWithData:data];
-                                           UIImage* image = [self _resizeImage:srcImage bounds:bounds options:options];
+                                           UIImage* image = [self resizeImage:srcImage bounds:bounds options:options];
                                            dispatch_async(dispatch_get_main_queue(), ^(void) {
                                                comp(image, nil);
                                            });

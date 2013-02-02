@@ -53,11 +53,11 @@
 		self.imageView = aImageView;
 		[aImageView release];
 		
-		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tapped:)];
+		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 		[self addGestureRecognizer:tapgr];
 		[tapgr release];
         
-        UITapGestureRecognizer* doubleTapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_doubleTapped:)];
+        UITapGestureRecognizer* doubleTapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapped:)];
         doubleTapgr.numberOfTapsRequired = 2;
         [self addGestureRecognizer:doubleTapgr];
         [doubleTapgr release];
@@ -67,12 +67,12 @@
     return self;
 }
 
-- (void)_tapped:(UITapGestureRecognizer*)tapgr
+- (void)tapped:(UITapGestureRecognizer*)tapgr
 {
 	[[UIApplication sharedApplication] sendAction:@selector(lt_zoomedImageViewClose:) to:nil from:self forEvent:nil];
 }
 
-- (void)_doubleTapped:(UITapGestureRecognizer*)tapgr
+- (void)doubleTapped:(UITapGestureRecognizer*)tapgr
 {
     if (self.zoomScale != 1.0) {
         [self setZoomScale:1.0 animated:YES];
