@@ -12,6 +12,9 @@
 #import "LTTextImageView.h"
 #import "OptionViewController.h"
 
+
+#define LTDebugTestRuby (1)
+
 @interface MainViewController()
 {
     LTTextView* _landscapeView;
@@ -417,7 +420,7 @@
             NSMutableArray* frames = [dict objectForKey:LTTextLayouterAttributeValueFrameKey];
             UIColor* color = [UIColor colorWithHue:(rand()%20)*1.0/20.0 saturation:(rand()%20)/20.0 brightness:0.5 alpha:0.3];
             for (NSValue* frameObj in frames) {
-                UIView* view = [[UIView alloc] initWithFrame:[frameObj CGRectValue]];
+                UIView* view = [[UIView alloc] initWithFrame:CGRectIntegral([frameObj CGRectValue])];
                 view.tag = 99;
                 view.userInteractionEnabled = NO;
                 view.backgroundColor = color;
@@ -425,11 +428,22 @@
 #if LTDebugTestRuby          
                 UILabel* rubyLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, view.bounds.size.height, view.bounds.size.width)];
                 [view addSubview:rubyLabel];
+                rubyLabel.textColor = [UIColor colorWithRed:0.5 green:0 blue:0 alpha:1.0];
                 rubyLabel.backgroundColor = [UIColor clearColor]; 
-                CGAffineTransform t = CGAffineTransformIdentity;
-                rubyLabel.transform = CGAffineTransformRotate(t, M_PI_2);
-                rubyLabel.font = [UIFont fontWithName:@"HiraMinProN-W3" size:12.0f];
-                rubyLabel.text = [layouter.attributedString.string substringWithRange:[[dict objectForKey:LTTextLayouterAttributeValueRangeKey] rangeValue]];
+                if (layouter.verticalText) {
+                    CGAffineTransform t = CGAffineTransformIdentity;
+                    rubyLabel.transform = CGAffineTransformRotate(t, M_PI_2);
+                } else {
+                    rubyLabel.transform = CGAffineTransformMakeTranslation(-40, -10);
+                }
+                rubyLabel.font = [UIFont fontWithName:@"HiraMinProN-W3" size:10.0f];
+                //rubyLabel.text = [layouter.attributedString.string substringWithRange:[[dict objectForKey:LTTextLayouterAttributeValueRangeKey] rangeValue]];
+                id value = [dict objectForKey:LTTextLayouterAttributeValueKey];
+                if ([value isKindOfClass:[NSURL class]]) {
+                    rubyLabel.text = [value host];
+                } else {
+                    rubyLabel.text = [value description];
+                }
                 [rubyLabel sizeToFit];
                 CGRect rf = rubyLabel.frame;
                 rubyLabel.center = CGPointMake(CGRectGetMidX(view.bounds)+rf.size.width*0.5, CGRectGetMidY(view.bounds));
