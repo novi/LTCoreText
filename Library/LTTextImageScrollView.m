@@ -12,7 +12,7 @@
 @interface LTTextImageScrollView()
 
 //- (void)_centeringImage;
-@property (nonatomic, retain) UIImageView* imageView;
+@property (nonatomic) UIImageView* imageView;
 
 @end
 
@@ -51,16 +51,13 @@
 //		[aImageView sizeToFit];
 		[self addSubview:aImageView];
 		self.imageView = aImageView;
-		[aImageView release];
 		
 		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 		[self addGestureRecognizer:tapgr];
-		[tapgr release];
         
         UITapGestureRecognizer* doubleTapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapped:)];
         doubleTapgr.numberOfTapsRequired = 2;
         [self addGestureRecognizer:doubleTapgr];
-        [doubleTapgr release];
 		
 		//[self _centeringImage];
     }
@@ -84,8 +81,6 @@
 - (void)dealloc
 {
 	LTTextMethodDebugLog();
-	self.imageView = nil;
-    [super dealloc];
 }
 
 -(void)layoutSubviews

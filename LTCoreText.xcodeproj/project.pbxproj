@@ -21,12 +21,12 @@
 		520EDE0E149AFD5A00DE253D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDDE9149AFD5900DE253D /* Foundation.framework */; };
 		520EDE16149AFD5A00DE253D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 520EDE14149AFD5A00DE253D /* InfoPlist.strings */; };
 		520EDE19149AFD5A00DE253D /* LTCoreTextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE18149AFD5A00DE253D /* LTCoreTextTests.m */; };
-		520EDE30149AFE4800DE253D /* LTImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE25149AFE4800DE253D /* LTImageDownloader.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		520EDE31149AFE4800DE253D /* LTTextImageScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE27149AFE4800DE253D /* LTTextImageScrollView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		520EDE32149AFE4800DE253D /* LTTextImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE29149AFE4800DE253D /* LTTextImageView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		520EDE33149AFE4800DE253D /* LTTextLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2B149AFE4800DE253D /* LTTextLayouter.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		520EDE34149AFE4800DE253D /* LTTextPageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2D149AFE4800DE253D /* LTTextPageView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		520EDE35149AFE4800DE253D /* LTTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2F149AFE4800DE253D /* LTTextView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		520EDE30149AFE4800DE253D /* LTImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE25149AFE4800DE253D /* LTImageDownloader.m */; };
+		520EDE31149AFE4800DE253D /* LTTextImageScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE27149AFE4800DE253D /* LTTextImageScrollView.m */; };
+		520EDE32149AFE4800DE253D /* LTTextImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE29149AFE4800DE253D /* LTTextImageView.m */; };
+		520EDE33149AFE4800DE253D /* LTTextLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2B149AFE4800DE253D /* LTTextLayouter.m */; };
+		520EDE34149AFE4800DE253D /* LTTextPageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2D149AFE4800DE253D /* LTTextPageView.m */; };
+		520EDE35149AFE4800DE253D /* LTTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EDE2F149AFE4800DE253D /* LTTextView.m */; };
 		520EDE48149B40ED00DE253D /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDE47149B40ED00DE253D /* CoreText.framework */; };
 		520EDEA3149B430D00DE253D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA2149B430D00DE253D /* QuartzCore.framework */; };
 		520EDEA5149B431200DE253D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 520EDEA4149B431200DE253D /* ImageIO.framework */; };

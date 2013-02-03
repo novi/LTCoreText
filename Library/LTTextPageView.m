@@ -43,7 +43,7 @@
         // Initialization code
 		self.autoresizingMask = UIViewAutoresizingNone;
 		self.autoresizesSubviews = NO;
-		_layouter = [layouter retain];
+		_layouter = layouter;
 		_index = index;
 		//self.backgroundColor = _layouter.backgroundColor;
 		self.opaque = YES;
@@ -51,9 +51,8 @@
 		_isNeedShowAttachments = YES;
 		//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_imageDownloaded:) name:@"DTLazyImageViewDidFinishLoading" object:nil];
 		
-		UITapGestureRecognizer* gr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapped:)];
+		//UITapGestureRecognizer* gr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapped:)];
 		//[self addGestureRecognizer:gr];
-		[gr release];
     }
     return self;
 }
@@ -72,14 +71,6 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:nil];
 	LTTextMethodDebugLog();
-	
-	LTTextRelease(_zoomedImageView);
-	
-	LTTextRelease(_imageSizes[0]);
-	LTTextRelease(_imageSizes[1]);
-	LTTextRelease(_imageView);
-    LTTextRelease(_layouter);
-    [super dealloc];
 }
 
 #pragma mark - Attachments

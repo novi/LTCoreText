@@ -12,7 +12,7 @@
 
 @interface LTTextImageView : UIImageView
 
-@property (nonatomic, retain) NSURL* imageURL;
+@property (nonatomic) NSURL* imageURL;
 @property (nonatomic) CGSize displaySize;
 
 - (void)startDownload;

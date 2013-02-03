@@ -25,7 +25,7 @@
     #define LTTextLogError(...)  { do {} while (0);}
 #endif
 
-#define LTTextRelease(obj) {if (obj) { [(obj) release]; obj = nil; } }
+//#define LTTextRelease(obj) {if (obj) { [(obj) release]; obj = nil; } }
 #define LTTextCFRelease(obj) { if (obj) { CFRelease(obj); } }
 #define LTTextMethodDebugLog() {LTTextLogInfo(@"%s,%@", __func__, self);}
 

@@ -58,15 +58,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-    LTTextRelease(_layouters);
-	LTTextRelease(_loadedViews);
-    [super dealloc];
-}
-
-
-
 - (void)calculatePageCount
 {
 	NSUInteger count = 0;
@@ -385,7 +376,7 @@
 	
 	NSUInteger pageIndex = 0;
 	LTTextLayouter* layouter = [self layouterAtScrollIndex:scrollIndex pageIndexOnLayouter:&pageIndex];
-	LTTextPageView* pageView = [[[LTTextPageView alloc] initWithFrame:frame layouter:layouter pageIndex:pageIndex] autorelease];
+	LTTextPageView* pageView = [[LTTextPageView alloc] initWithFrame:frame layouter:layouter pageIndex:pageIndex];
 	NSUInteger layouterIndex = [_layouters indexOfObjectIdenticalTo:layouter];
 	
 	NSMutableArray* loadedViews = [_loadedViews objectAtIndex:layouterIndex];

@@ -18,7 +18,7 @@
 	dispatch_queue_t _queue;
 }
 
-@property (nonatomic, retain) NSOperationQueue* downloadQueue;
+@property (nonatomic) NSOperationQueue* downloadQueue;
 
 @end
 
@@ -59,7 +59,7 @@ NSString* const LTImageDownloaderOptionBorderWidth = @"border_width";
     self = [super init];
     if (self) {
 		_queue = dispatch_queue_create("lt.coretext.imagedownloader", 0);
-		self.downloadQueue = [[[NSOperationQueue alloc] init] autorelease];
+		self.downloadQueue = [[NSOperationQueue alloc] init];
 		_downloadQueue.maxConcurrentOperationCount = 3;
 		_imageCache = [[NSCache alloc] init];
         _imageCache.countLimit = 30;

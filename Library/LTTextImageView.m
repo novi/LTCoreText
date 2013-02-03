@@ -14,8 +14,6 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 
 @implementation LTTextImageView
 
-@synthesize imageURL, displaySize;
-
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -35,8 +33,6 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 		UITapGestureRecognizer* tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 		[overlayView addGestureRecognizer:tapgr];
 		
-		[tapgr release];
-		[overlayView release];
     }
     return self;
 }
@@ -76,8 +72,6 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
 - (void)dealloc
 {
 	LTTextMethodDebugLog();
-    self.imageURL = nil;
-    [super dealloc];
 }
 
 -(void)startDownload
@@ -91,7 +85,7 @@ const NSUInteger kLTTextImageViewOverlayViewTag = 0x10;
     self.alpha = 0.0;
     self.image = nil;
     
-    NSURL* currentURL = [[self.imageURL copy] autorelease];
+    NSURL* currentURL = [self.imageURL copy];
     
     [[LTImageDownloader sharedInstance] downloadImageWithURL:currentURL
                                                  imageBounds:self.displaySize

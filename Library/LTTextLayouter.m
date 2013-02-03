@@ -19,7 +19,7 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
     CGPoint* _lineOrigins;
 }
 
-@property (nonatomic, retain) id frame;
+@property (nonatomic, strong) id frame;
 @property (nonatomic) CGRect contentFrame;
 @property (nonatomic) CGRect frameBounds; // frame path
 @property (nonatomic) CGPoint* lineOrigins;
@@ -36,15 +36,14 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
 
 -(NSUInteger)indexOfLine:(CTLineRef)line
 {
-    NSArray* lines = (NSArray*)CTFrameGetLines((CTFrameRef)_frame);
-    return [lines indexOfObjectIdenticalTo:(id)line];
+    NSArray* lines = (__bridge NSArray*)CTFrameGetLines((__bridge CTFrameRef)_frame);
+    return [lines indexOfObjectIdenticalTo:(__bridge id)line];
 }
 
 -(void)setFrame:(id)frame
 {
     if (_frame != frame) {
-        LTTextRelease(_frame);
-        _frame = [frame retain];
+        _frame = frame;
     }
     
     if (_lineOrigins) {
@@ -56,18 +55,18 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
         return;
     }
     
-    CFArrayRef lines = CTFrameGetLines((CTFrameRef)_frame);
+    CFArrayRef lines = CTFrameGetLines((__bridge CTFrameRef)_frame);
     _lineOrigins = malloc(sizeof(CGPoint)*CFArrayGetCount(lines));
-    CTFrameGetLineOrigins((CTFrameRef)_frame, CFRangeMake(0, CFArrayGetCount(lines)), _lineOrigins);
+    CTFrameGetLineOrigins((__bridge CTFrameRef)_frame, CFRangeMake(0, CFArrayGetCount(lines)), _lineOrigins);
 }
 
 - (NSArray*)linesWithRange:(NSRange)range
 {
-    NSArray* lines = (NSArray*)CTFrameGetLines((CTFrameRef)_frame);
+    NSArray* lines = (__bridge NSArray*)CTFrameGetLines((__bridge CTFrameRef)_frame);
     NSMutableArray* dst = [NSMutableArray arrayWithCapacity:lines.count];
     
     for (id line in lines) {
-        CFRange cfrange = CTLineGetStringRange((CTLineRef)line);
+        CFRange cfrange = CTLineGetStringRange((__bridge CTLineRef)line);
         NSRange lineRange = NSMakeRange(cfrange.location, cfrange.length);
         if (NSLocationInRange(range.location, lineRange) || NSLocationInRange(range.location+range.length-1, lineRange)) {
             //NSLog(@"added: %@", [_attributedString.string substringWithRange:lineRange]);
@@ -82,15 +81,15 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
 
 - (NSArray *)glyphRunsWithRange:(NSRange)range onLine:(CTLineRef)line
 {
-    NSArray* runs = (NSArray*)CTLineGetGlyphRuns(line);
+    NSArray* runs = (__bridge NSArray*)CTLineGetGlyphRuns(line);
     NSMutableArray* dst = [NSMutableArray arrayWithCapacity:runs.count];
     
     for (id runObj in runs) {
-        CTRunRef run = (CTRunRef)runObj;
+        CTRunRef run = (__bridge CTRunRef)runObj;
         CFRange cfrange = CTRunGetStringRange(run);
         NSRange runRange = NSMakeRange(cfrange.location, cfrange.length);
         if (NSLocationInRange(runRange.location, range)) {
-            [dst addObject:(id)run];
+            [dst addObject:(__bridge id)run];
         }
     }
     
@@ -121,7 +120,7 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
         CGFloat ascent = 0;
         CGFloat descent = 0;
         CGFloat leading = 0;
-        CGFloat width = (CGFloat)CTRunGetTypographicBounds((CTRunRef)runObj, CFRangeMake(0, 0), &ascent, &descent, &leading);
+        CGFloat width = (CGFloat)CTRunGetTypographicBounds((__bridge CTRunRef)runObj, CFRangeMake(0, 0), &ascent, &descent, &leading);
         CGPoint p;
         
         /*for (int i = 0; i < CTRunGetGlyphCount(runObj); i++) {
@@ -129,9 +128,9 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
             NSLog(@"%d---%@", i, NSStringFromCGPoint(p));
         }*/
         
-        CTRunGetPositions((CTRunRef)runObj, CFRangeMake(0, 1), &p);
+        CTRunGetPositions((__bridge CTRunRef)runObj, CFRangeMake(0, 1), &p);
         
-        CFDictionaryRef attr = CTRunGetAttributes((CTRunRef)runObj);
+        CFDictionaryRef attr = CTRunGetAttributes((__bridge CTRunRef)runObj);
         CGFloat xoffs = p.x;
         NSNumber* vf = (id)CFDictionaryGetValue(attr, kCTVerticalFormsAttributeName);
         if (vf && [vf boolValue]) {
@@ -180,7 +179,6 @@ NSString* const LTTextLayouterAttributeValueFrameKey = @"frame";
         _lineOrigins = NULL;
     }
     self.frame = nil;
-    [super dealloc];
 }
 
 @end
@@ -234,8 +232,8 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     self = [super init];
     if (self) {
         _attributedString = [attrString copy];
-		_options = [[NSDictionary dictionaryWithDictionary:options] retain];
-		_framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)_attributedString);
+		_options = [NSDictionary dictionaryWithDictionary:options];
+		_framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)_attributedString);
 		_frameSize = size;
 		
 		_needFrameLayout = YES;
@@ -253,13 +251,9 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 - (void)dealloc
 {
-    
 	LTTextMethodDebugLog();
-	LTTextRelease(_frames);
-	LTTextRelease(_attributedString);
 	LTTextCFRelease(_framesetter);
 	if (_backgroundColor) CGColorRelease(_backgroundColor);
-	[super dealloc];
 }
 
 #pragma mark -
@@ -282,7 +276,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     }
     
     LTTextFrame* textFrame = [[_frames objectAtIndex:index] objectAtIndex:col];
-	CTFrameRef frame = (CTFrameRef)textFrame.frame;
+	CTFrameRef frame = (__bridge CTFrameRef)textFrame.frame;
 	CFRange range = CTFrameGetVisibleStringRange(frame);
 	
 	return NSMakeRange(range.location, range.length);
@@ -303,7 +297,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         NSArray* cols = [_frames objectAtIndex:pi];
         for (NSUInteger ci = 0; ci < cols.count; ci++) {
             LTTextFrame* textFrame = [cols objectAtIndex:ci];
-            CTFrameRef frame = (CTFrameRef)textFrame.frame;
+            CTFrameRef frame = (__bridge CTFrameRef)textFrame.frame;
             count += CTFrameGetVisibleStringRange((CTFrameRef)frame).length;
             if (count > index) {
                 if (col) {
@@ -360,7 +354,6 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 - (void)layoutFrame
 {
 	_needFrameLayout = NO;
-	LTTextRelease(_frames);
 	_frames = [[NSMutableArray alloc] init];
     
     CFMutableDictionaryRef frameAttr = CFDictionaryCreateMutable(NULL, 2, NULL, NULL);
@@ -396,13 +389,12 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 		CTFrameRef frame = CTFramesetterCreateFrame(_framesetter, strRange, path, frameAttr);
         
         LTTextFrame* textFrame = [[LTTextFrame alloc] init];
-        textFrame.frame = (id)frame;
+        textFrame.frame = (__bridge id)frame;
         textFrame.contentFrame = contentFrame;
         textFrame.frameBounds = frameBounds;
         textFrame.verticalLayout = _verticalText;
 		
         [currentFrames addObject:textFrame];
-        [textFrame release];
 		
         // current frame(columns) full, change to next page (and col=0)
         if ([currentFrames count] == _columnCount) {
@@ -532,13 +524,12 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 NSRange replaceRange = NSMakeRange(stringRange.length-1, 1);
                 [lineAttrString replaceCharactersInRange:replaceRange withString:@"-"];
                 
-                CTLineRef hyphenLine = CTLineCreateWithAttributedString((CFAttributedStringRef)lineAttrString);
+                CTLineRef hyphenLine = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)lineAttrString);
                 CTLineRef justifiedLine = CTLineCreateJustifiedLine(hyphenLine, 1.0, pathBBox.size.width); 
                 CTLineDraw(justifiedLine, context);
                 CFRelease(justifiedLine);
                 //CTLineDraw(hyphenLine, context);
                 CFRelease(hyphenLine);
-                [lineAttrString release];
             } else {
                 if (justifyThreshold != 1.0 && lineBounds.size.width >= pathBBox.size.width*justifyThreshold) {
                     // TODO: justify with hyphenation
@@ -634,7 +625,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         
 		
         LTTextFrame* textFrame = [frames objectAtIndex:i];
-		CTFrameRef frame = (CTFrameRef)textFrame.frame;
+		CTFrameRef frame = (__bridge CTFrameRef)textFrame.frame;
 		CFArrayRef lines = CTFrameGetLines(frame);
 		CGRect pathBBox = textFrame.contentFrame;
         
@@ -682,7 +673,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
     
     CGAffineTransform t = [self _transformForCurrentTextProgression];
 	*/
-	CFArrayRef lines = CTFrameGetLines((CTFrameRef)frame.frame);
+	CFArrayRef lines = CTFrameGetLines((__bridge CTFrameRef)frame.frame);
 	for (CFIndex i = 0; i < CFArrayGetCount(lines); i++) {
 		CTLineRef line = CFArrayGetValueAtIndex(lines, i);
 		CFArrayRef runs = CTLineGetGlyphRuns(line);
@@ -734,12 +725,12 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
                 }
                 */
                 
-                attachFrame = [self convertFrameForCurrentTextProgression: [frame frameWithGlyphRuns:[NSArray arrayWithObject:(id)run] onLine:line] ];
+                attachFrame = [self convertFrameForCurrentTextProgression: [frame frameWithGlyphRuns:[NSArray arrayWithObject:(__bridge id)run] onLine:line] ];
                 //attachFrame = CGRectApplyAffineTransform(attachFrame, t);
                 
                 
                 
-                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(id)attr
+                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:(__bridge id)attr
                                       ,@"attributes"
                                       ,[NSValue valueWithCGRect:attachFrame ]
                                       ,@"frame",nil];
@@ -752,7 +743,6 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
 
 - (void)createAttachmentsArray
 {
-	LTTextRelease(_attachments);
 	_attachments = [[NSMutableArray alloc] init];
 	
 	
@@ -786,7 +776,7 @@ CGFloat const kLTTextLayouterLineToImageSpace = 10.0;
         LTTextLogInfo(@"Attachment not created, page=%d, col=%d, created count=%d", index, col, attachments.count);
     }
     
-    return [[attachments copy] autorelease];
+    return [attachments copy];
 }
 
 #pragma mark - Custom Attributes
